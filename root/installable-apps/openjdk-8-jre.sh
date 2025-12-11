@@ -1,2 +1,3 @@
-apt update
-apt install -y openjdk-8-jre
+echo "**** install openjdk-8-jre ****"
+apt-get update
+apt-get install -y --no-install-recommends openjdk-8-jre
