@@ -1,2 +1,3 @@
-apt update
-apt install -y synaptic
+echo "**** install synaptic ****"
+apt-get update
+apt-get install -y --no-install-recommends synaptic

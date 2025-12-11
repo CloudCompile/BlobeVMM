@@ -1,2 +1,3 @@
-apt update
-apt install -y vlc
+echo "**** install vlc ****"
+apt-get update
+apt-get install -y --no-install-recommends vlc

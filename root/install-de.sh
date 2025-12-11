@@ -1,4 +1,6 @@
-apt update
+# Single apt update for all desktop environment installations
+apt-get update
+
 if jq ".DE" "/options.json" | grep -q "KDE Plasma (Heavy)"; then
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y dolphin \
     gwenview \
@@ -108,4 +110,4 @@ if jq ".DE" "/options.json" | grep -q "LXQT"; then
     cp /startwm-lxqt.sh /defaults/startwm.sh
 fi
 chmod +x /defaults/startwm.sh
-rm /startwm-kde.sh /startwm-i3.sh /startwm-xfce.sh
+rm /startwm-kde.sh /startwm-i3.sh /startwm-xfce.sh /startwm-gnome.sh /startwm-cinnamon.sh /startwm-lxqt.sh

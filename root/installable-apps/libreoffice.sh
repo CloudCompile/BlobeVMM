@@ -1,2 +1,3 @@
-apt update
-apt install -y libreoffice-writer libreoffice-math libreoffice-impress libreoffice-base
+echo "**** install libreoffice ****"
+apt-get update
+apt-get install -y --no-install-recommends libreoffice-writer libreoffice-math libreoffice-impress libreoffice-base
