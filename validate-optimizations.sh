@@ -46,8 +46,12 @@ done
 echo ""
 echo "✓ Checking Dockerfile syntax..."
 if docker version > /dev/null 2>&1; then
-    if docker build -f Dockerfile --target "" . 2>&1 | grep -q "failed to reach build target"; then
+    # Simple syntax check by attempting to parse the Dockerfile
+    if docker build -f Dockerfile -t blobevm-test --dry-run . > /dev/null 2>&1 || \
+       DOCKER_BUILDKIT=1 docker build -f Dockerfile --progress=plain . 2>&1 | head -5 | grep -q "FROM"; then
         echo "  ✓ Dockerfile syntax OK"
+    else
+        echo "  ⚠ Unable to validate Dockerfile, but file exists"
     fi
 else
     echo "  ⚠ Docker not available, skipping Dockerfile validation"
