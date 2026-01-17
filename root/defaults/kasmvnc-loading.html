@@ -101,7 +101,8 @@
         }
       };
 
-      const timer = setInterval(advance, 900);
+      const stepIntervalMs = 900;
+      const timer = setInterval(advance, stepIntervalMs);
       advance();
     </script>
   </body>

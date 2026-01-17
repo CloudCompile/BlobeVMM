@@ -11,7 +11,10 @@ web_roots=(
 if [ -f "$loading_page" ]; then
   for web_root in "${web_roots[@]}"; do
     if [ -d "$web_root" ] && [ -f "$web_root/index.html" ]; then
-      cp "$loading_page" "$web_root/index.html"
+      if ! cmp -s "$loading_page" "$web_root/index.html"; then
+        cp "$web_root/index.html" "$web_root/index.html.bak"
+        cp "$loading_page" "$web_root/index.html"
+      fi
       break
     fi
   done

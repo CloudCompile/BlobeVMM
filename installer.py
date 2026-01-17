@@ -71,7 +71,7 @@ class InstallScreen(Screen):
 
         yield Vertical (
          Horizontal(
-            Label("\nDesktop Environement :"),
+            Label("\nDesktop Environment :"),
             Select(id="de", value="XFCE4 (Lightweight)", options=((line, line) for line in LINES)),
         ),)
         yield Horizontal (
