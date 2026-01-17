@@ -1,0 +1,18 @@
+#!/usr/bin/with-contenv bash
+set -e
+
+loading_page="/defaults/kasmvnc-loading.html"
+web_roots=(
+  "/usr/share/kasmvnc/www"
+  "/usr/local/share/kasmvnc/www"
+  "/opt/kasmvnc/www"
+)
+
+if [ -f "$loading_page" ]; then
+  for web_root in "${web_roots[@]}"; do
+    if [ -d "$web_root" ] && [ -f "$web_root/index.html" ]; then
+      cp "$loading_page" "$web_root/index.html"
+      break
+    fi
+  done
+fi

@@ -17,6 +17,8 @@ files_to_check=(
     "root/installapps.sh"
     "root/etc/wgetrc"
     "root/defaults/kasmvnc.conf.sh"
+    "root/defaults/kasmvnc-loading.html"
+    "root/etc/cont-init.d/10-kasmvnc-loading"
 )
 
 for file in "${files_to_check[@]}"; do

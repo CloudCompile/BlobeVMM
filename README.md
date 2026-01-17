@@ -17,6 +17,10 @@ chmod +x install.sh
 ./install.sh
 ```
 
+### Vercel Deployment
+
+BlobeVMM includes a `vercel.json` that deploys the Dockerfile directly on Vercel. The container listens on port 3000, and the default `options.json` ships with XFCE4 so sessions auto-start with the lightweight desktop. The web client now shows a startup progress screen before redirecting into the session.
+
 ## What's Optimized?
 
 See [OPTIMIZATIONS.md](OPTIMIZATIONS.md) for a detailed list of performance improvements.
