@@ -96,11 +96,12 @@
         if (stepIndex >= steps.length) {
           setTimeout(() => {
             window.location.replace("/vnc.html?autoconnect=1");
-          }, 800);
+          }, redirectDelayMs);
           clearInterval(timer);
         }
       };
 
+      const redirectDelayMs = 800;
       const stepIntervalMs = 900;
       const timer = setInterval(advance, stepIntervalMs);
       advance();
