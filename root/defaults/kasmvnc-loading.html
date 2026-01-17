@@ -87,17 +87,19 @@
       const progress = document.getElementById("progress");
       const status = document.getElementById("status");
       let stepIndex = 0;
+      let redirectScheduled = false;
 
       const advance = () => {
         stepIndex += 1;
         const percent = Math.min(stepIndex / steps.length, 1) * 100;
         progress.style.width = `${percent}%`;
         status.textContent = steps[Math.min(stepIndex, steps.length - 1)];
-        if (stepIndex >= steps.length) {
+        if (stepIndex >= steps.length && !redirectScheduled) {
+          redirectScheduled = true;
+          clearInterval(timer);
           setTimeout(() => {
             window.location.replace("/vnc.html?autoconnect=1");
           }, redirectDelayMs);
-          clearInterval(timer);
         }
       };
 

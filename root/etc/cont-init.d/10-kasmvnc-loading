@@ -23,8 +23,9 @@ if [ -f "$loading_page" ]; then
       fi
       if cp "$loading_page" "$web_root/index.html"; then
         break
+      else
+        echo "Failed to install loading page in $web_root" >&2
       fi
-      echo "Failed to install loading page in $web_root" >&2
     fi
   done
 fi
