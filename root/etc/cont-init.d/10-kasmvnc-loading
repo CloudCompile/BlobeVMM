@@ -12,6 +12,7 @@ if [ -f "$loading_page" ]; then
   for web_root in "${web_roots[@]}"; do
     if [ -d "$web_root" ] && [ -f "$web_root/index.html" ]; then
       if cmp -s "$loading_page" "$web_root/index.html"; then
+        echo "Loading page already installed in $web_root"
         break
       fi
       backup_path="$web_root/index.html.bak"

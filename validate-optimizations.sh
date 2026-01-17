@@ -10,15 +10,15 @@ echo ""
 # Check if all required files exist
 echo "✓ Checking file structure..."
 files_to_check=(
-    "Dockerfile"
     ".dockerignore"
+    "Dockerfile"
     "install.sh"
+    "root/defaults/kasmvnc-loading.html"
+    "root/defaults/kasmvnc.conf.sh"
+    "root/etc/cont-init.d/10-kasmvnc-loading"
+    "root/etc/wgetrc"
     "root/install-de.sh"
     "root/installapps.sh"
-    "root/etc/wgetrc"
-    "root/defaults/kasmvnc.conf.sh"
-    "root/defaults/kasmvnc-loading.html"
-    "root/etc/cont-init.d/10-kasmvnc-loading"
 )
 
 for file in "${files_to_check[@]}"; do
