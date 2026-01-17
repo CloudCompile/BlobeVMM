@@ -1,0 +1,32 @@
+#!/usr/bin/with-contenv bash
+set -e
+
+loading_page="/defaults/kasmvnc-loading.html"
+web_roots=(
+  "/usr/share/kasmvnc/www"
+  "/usr/local/share/kasmvnc/www"
+  "/opt/kasmvnc/www"
+)
+
+if [ -f "$loading_page" ]; then
+  for web_root in "${web_roots[@]}"; do
+    if [ -d "$web_root" ] && [ -f "$web_root/index.html" ]; then
+      if cmp -s "$loading_page" "$web_root/index.html"; then
+        echo "Loading page already installed in $web_root"
+        break
+      fi
+      backup_path="$web_root/index.html.bak"
+      if [ ! -f "$backup_path" ]; then
+        if ! cp "$web_root/index.html" "$backup_path"; then
+          echo "Failed to back up $web_root/index.html" >&2
+          continue
+        fi
+      fi
+      if cp "$loading_page" "$web_root/index.html"; then
+        break
+      else
+        echo "Failed to install loading page in $web_root" >&2
+      fi
+    fi
+  done
+fi

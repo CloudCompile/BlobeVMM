@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Starting BlobeVM</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at top, #1b2338, #0c101a 55%, #07090f 100%);
+        color: #f5f7ff;
+      }
+      .card {
+        width: min(520px, 90vw);
+        padding: 32px;
+        border-radius: 16px;
+        background: rgba(16, 20, 34, 0.85);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+        text-align: center;
+      }
+      h1 {
+        font-size: 24px;
+        margin: 0 0 12px;
+      }
+      p {
+        margin: 0 0 24px;
+        color: #c6d0f5;
+      }
+      .progress-track {
+        height: 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        overflow: hidden;
+      }
+      .progress-bar {
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, #4facfe, #00f2fe);
+        transition: width 0.6s ease;
+      }
+      .status {
+        margin-top: 16px;
+        font-size: 14px;
+        color: #d5dcff;
+      }
+      .actions {
+        margin-top: 24px;
+      }
+      .launch {
+        display: inline-flex;
+        padding: 10px 18px;
+        border-radius: 999px;
+        background: #4facfe;
+        color: #0c101a;
+        text-decoration: none;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>Starting your BlobeVM session</h1>
+      <p>We are spinning up your desktop environment and preparing the remote desktop stream.</p>
+      <div class="progress-track">
+        <div class="progress-bar" id="progress"></div>
+      </div>
+      <div class="status" id="status">Initializing containers...</div>
+      <div class="actions">
+        <a class="launch" href="/vnc.html?autoconnect=1">Launch session now</a>
+      </div>
+    </main>
+    <script>
+      const steps = [
+        "Initializing containers...",
+        "Starting desktop environment...",
+        "Warming up remote desktop...",
+        "Connecting to your session..."
+      ];
+      const progress = document.getElementById("progress");
+      const status = document.getElementById("status");
+      let stepIndex = 0;
+      let redirectScheduled = false;
+
+      const advance = () => {
+        stepIndex += 1;
+        const percent = Math.min(stepIndex / steps.length, 1) * 100;
+        progress.style.width = `${percent}%`;
+        status.textContent = steps[Math.min(stepIndex, steps.length - 1)];
+        if (stepIndex >= steps.length && !redirectScheduled) {
+          redirectScheduled = true;
+          clearInterval(timer);
+          setTimeout(() => {
+            window.location.replace("/vnc.html?autoconnect=1");
+          }, redirectDelayMs);
+        }
+      };
+
+      const redirectDelayMs = 800;
+      const stepIntervalMs = 900;
+      const timer = setInterval(advance, stepIntervalMs);
+      advance();
+    </script>
+  </body>
+</html>

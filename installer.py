@@ -71,8 +71,8 @@ class InstallScreen(Screen):
 
         yield Vertical (
          Horizontal(
-            Label("\nDesktop Environement :"),
-            Select(id="de", value="KDE Plasma (Heavy)", options=((line, line) for line in LINES)),
+            Label("\nDesktop Environment :"),
+            Select(id="de", value="XFCE4 (Lightweight)", options=((line, line) for line in LINES)),
         ),)
         yield Horizontal (
             Button.error("Back", id="back"),
@@ -105,4 +105,3 @@ class InstallApp(App):
 if __name__ == "__main__":
     app = InstallApp()
     app.run()
-

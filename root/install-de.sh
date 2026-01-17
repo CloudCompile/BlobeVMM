@@ -109,5 +109,8 @@ if jq ".DE" "/options.json" | grep -q "LXQT"; then
     apt-get install -y lxqt
     cp /startwm-lxqt.sh /defaults/startwm.sh
 fi
+if [ ! -f /defaults/startwm.sh ]; then
+    cp /startwm-xfce.sh /defaults/startwm.sh
+fi
 chmod +x /defaults/startwm.sh
 rm /startwm-kde.sh /startwm-i3.sh /startwm-xfce.sh /startwm-gnome.sh /startwm-cinnamon.sh /startwm-lxqt.sh
