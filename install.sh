@@ -37,7 +37,7 @@ if jq ".enablekvm" "$json_file" | grep -q true; then
       -e SUBFOLDER=/ \
       -e TITLE=BlobeVM \
       -p 3000:3000 \
-      --shm-size="2gb" \
+      --shm-size="4gb" \
       -v $(pwd)/Save:/config \
       --restart unless-stopped \
       blobevm
@@ -51,7 +51,7 @@ else
       -e SUBFOLDER=/ \
       -e TITLE=BlobeVM \
       -p 3000:3000 \
-      --shm-size="2gb" \
+      --shm-size="4gb" \
       -v $(pwd)/Save:/config \
       --restart unless-stopped \
       blobevm
