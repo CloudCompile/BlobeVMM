@@ -54,7 +54,10 @@ RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
     add-apt-repository -y ppa:mozillateam/ppa && \
     apt-get update && \
     # Install XFCE4 and essential apps in single layer for speed
+    # (force-confold/force-confdef prevents dpkg conffile prompts when this repo pre-seeds configs like /etc/wgetrc)
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+        -o Dpkg::Options::="--force-confdef" \
+        -o Dpkg::Options::="--force-confold" \
         # XFCE4 Core - lightweight and fastest
         xfce4 \
         xubuntu-default-settings \
