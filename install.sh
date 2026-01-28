@@ -2,6 +2,7 @@
 # Optimized installation script for GitHub Codespace with sudo handling and real-time progress bars
 # Maximum speed installation of BlobeVM XFCE4
 set -e  # Exit on error
+set -o pipefail  # Ensure piped commands fail the script when the first command fails
 
 # Color codes for output
 RED='\033[0;31m'
@@ -310,6 +311,31 @@ else
     fi
 fi
 
+# Verify image exists locally before trying to run it (prevents accidental registry pulls)
+if ! docker_cmd image inspect blobevm-optimized:latest >/dev/null 2>&1 && ! docker_cmd image inspect blobevm-optimized >/dev/null 2>&1; then
+    echo -e "${YELLOW}⚠️  Docker build finished, but image 'blobevm-optimized' was not found locally.${NC}"
+    echo -e "${YELLOW}💡 This can happen with some buildx setups when the result isn't loaded into the local daemon.${NC}"
+    echo -e "${BLUE}🔄 Trying an alternative build to force a local image...${NC}"
+
+    if [ "$DOCKER_BUILD_METHOD" = "buildx" ]; then
+        DOCKER_BUILDKIT=1 docker_cmd build --no-cache -t blobevm-optimized . >> "$BUILD_LOG" 2>&1 || true
+    else
+        if docker_cmd buildx version >/dev/null 2>&1; then
+            DOCKER_BUILDKIT=1 docker_cmd buildx build --no-cache --load -t blobevm-optimized . >> "$BUILD_LOG" 2>&1 || true
+        else
+            DOCKER_BUILDKIT=1 docker_cmd build --no-cache -t blobevm-optimized . >> "$BUILD_LOG" 2>&1 || true
+        fi
+    fi
+
+    if ! docker_cmd image inspect blobevm-optimized:latest >/dev/null 2>&1 && ! docker_cmd image inspect blobevm-optimized >/dev/null 2>&1; then
+        echo -e "${RED}❌ Image still not found locally after fallback build.${NC}"
+        echo -e "${YELLOW}💡 Check the build log: $BUILD_LOG${NC}"
+        echo -e "${YELLOW}💡 Last 50 log lines:${NC}"
+        tail -n 50 "$BUILD_LOG" || true
+        exit 1
+    fi
+fi
+
 # Create optimized configuration directory with progress bar
 echo -e "${CYAN}📁 Setting up optimized configuration...${NC}"
 for i in {1..3}; do
@@ -324,8 +350,20 @@ done
 
 echo -e "${GREEN}🚀 Starting optimized BlobeVM container...${NC}"
 
+# Recreate the container if it already exists
+if docker_cmd ps -a --format '{{.Names}}' 2>/dev/null | grep -qx "BlobeVM-Optimized"; then
+    echo -e "${YELLOW}⚠️  Existing container 'BlobeVM-Optimized' found - recreating...${NC}"
+    docker_cmd rm -f BlobeVM-Optimized >/dev/null 2>&1 || true
+fi
+
+# Avoid accidental registry pulls when the local image is missing
+PULL_NEVER=""
+if docker_cmd run --help 2>/dev/null | grep -q -- '--pull'; then
+    PULL_NEVER="--pull=never"
+fi
+
 # Start optimized container with GitHub Codespace optimizations
-docker_cmd run -d \
+docker_cmd run $PULL_NEVER -d \
   --name=BlobeVM-Optimized \
   -e PUID=1000 \
   -e PGID=1000 \
@@ -336,7 +374,7 @@ docker_cmd run -d \
   -e TITLE="BlobeVM XFCE4 Optimized" \
   -p 3000:3000 \
   --shm-size=2g \
-  -v $(pwd)/Save:/config \
+  -v "$(pwd)/Save:/config" \
   --memory=6g \
   --cpus=2 \
   --restart unless-stopped \
