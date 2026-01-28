@@ -59,6 +59,15 @@ docker_cmd() {
     fi
 }
 
+# Function to detect Docker version and build method
+detect_docker_build_method() {
+    if docker buildx version >/dev/null 2>&1; then
+        echo "buildx"
+    else
+        echo "regular"
+    fi
+}
+
 # Function to handle GPG errors and repository issues
 fix_apt_repositories() {
     echo -e "${YELLOW}🔧 Fixing APT repository issues...${NC}"
@@ -81,6 +90,13 @@ echo -e "${PURPLE}⚡ XFCE4 Only - Maximum Speed Configuration${NC}"
 echo -e "${CYAN}💾 Optimized for: 2 cores, 8GB RAM, 32GB storage${NC}"
 echo ""
 
+# Handle existing directory
+if [ -d "BlobeVMM" ]; then
+    echo -e "${YELLOW}⚠️  Directory BlobeVMM already exists. Cleaning up...${NC}"
+    sudo rm -rf BlobeVMM
+    echo -e "${GREEN}✅ Cleaned up existing directory${NC}"
+fi
+
 # Check if we're in GitHub Codespace
 if [ -n "$CODESPACES" ] || [ -n "$GITHUB_CODESPACE" ]; then
     echo -e "${BLUE}🔧 Detected GitHub Codespace environment - applying optimizations...${NC}"
@@ -94,6 +110,10 @@ if sudo -n true 2>/dev/null; then
 else
     echo -e "${YELLOW}⚠️  No sudo access - will try without sudo${NC}"
 fi
+
+# Detect Docker build method
+DOCKER_BUILD_METHOD=$(detect_docker_build_method)
+echo -e "${BLUE}🐳 Docker build method detected: $DOCKER_BUILD_METHOD${NC}"
 
 # Create optimized options.json with progress bar
 echo -e "${CYAN}⚙️  Creating optimized XFCE4 configuration...${NC}"
@@ -208,6 +228,7 @@ echo "🏗️  Building optimized Docker image with BuildKit..."
 echo "   - Using multi-stage builds for speed"
 echo "   - Leveraging BuildKit caching"
 echo "   - XFCE4 only for maximum performance"
+echo "   - Docker build method: $DOCKER_BUILD_METHOD"
 
 # Build with optimized Docker settings for GitHub Codespace
 echo -e "${PURPLE}🔨 Building Docker image (this may take 8-12 minutes)...${NC}"
@@ -217,16 +238,31 @@ echo -e "${BLUE}   Progress indicators will update in real-time${NC}"
 BUILD_LOG="build_progress.log"
 echo "Docker build started at $(date)" > "$BUILD_LOG"
 
-# Run Docker build with progress monitoring
-{
-    DOCKER_BUILDKIT=1 docker_cmd build \
-        --progress=plain \
-        --no-cache \
-        --memory=6g \
-        --cpus=2 \
-        -t blobevm-optimized \
-        . 2>&1 | tee -a "$BUILD_LOG"
-} &
+# Run Docker build with appropriate method and progress monitoring
+if [ "$DOCKER_BUILD_METHOD" = "buildx" ]; then
+    echo -e "${YELLOW}🔧 Using Docker buildx (GitHub Codespace)${NC}"
+    
+    # Use buildx with appropriate flags
+    {
+        DOCKER_BUILDKIT=1 docker_cmd buildx build \
+            --progress=plain \
+            --no-cache \
+            --load \
+            -t blobevm-optimized \
+            . 2>&1 | tee -a "$BUILD_LOG"
+    } &
+else
+    echo -e "${GREEN}🔧 Using regular Docker build${NC}"
+    
+    # Use regular docker build with memory and cpu limits
+    {
+        DOCKER_BUILDKIT=1 docker_cmd build \
+            --progress=plain \
+            --no-cache \
+            -t blobevm-optimized \
+            . 2>&1 | tee -a "$BUILD_LOG"
+    } &
+fi
 
 BUILD_PID=$!
 
@@ -252,8 +288,26 @@ else
     echo -e "${RED}❌ Docker build failed with exit code: $BUILD_EXIT_CODE${NC}"
     echo "   Check build log: $BUILD_LOG"
     echo -e "${YELLOW}💡 This is normal in some GitHub Codespace environments${NC}"
-    echo -e "${YELLOW}💡 Try running: DOCKER_BUILDKIT=1 docker build -t blobevm-optimized .${NC}"
-    exit $BUILD_EXIT_CODE
+    echo -e "${YELLOW}💡 Trying alternative build method...${NC}"
+    
+    # Try alternative build method
+    echo -e "${BLUE}🔄 Trying alternative Docker build...${NC}"
+    if [ "$DOCKER_BUILD_METHOD" = "buildx" ]; then
+        echo -e "${YELLOW}🔧 Trying regular Docker build...${NC}"
+        DOCKER_BUILDKIT=1 docker_cmd build --no-cache -t blobevm-optimized . >> "$BUILD_LOG" 2>&1
+    else
+        echo -e "${YELLOW}🔧 Trying Docker buildx...${NC}"
+        DOCKER_BUILDKIT=1 docker_cmd buildx build --no-cache --load -t blobevm-optimized . >> "$BUILD_LOG" 2>&1
+    fi
+    
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✅ Alternative build successful!${NC}"
+    else
+        echo -e "${RED}❌ Alternative build also failed${NC}"
+        echo -e "${YELLOW}💡 Manual build may be required${NC}"
+        echo -e "${YELLOW}💡 Try: DOCKER_BUILDKIT=1 docker build --no-cache -t blobevm-optimized .${NC}"
+        exit 1
+    fi
 fi
 
 # Create optimized configuration directory with progress bar
@@ -301,6 +355,7 @@ echo -e "   ${GREEN}✅${NC} Shared memory optimized for streaming"
 echo -e "   ${GREEN}✅${NC} VNC streaming optimizations enabled"
 echo -e "   ${GREEN}✅${NC} Real-time progress bars implemented"
 echo -e "   ${GREEN}✅${NC} APT repository error handling"
+echo -e "   ${GREEN}✅${NC} Multi-method Docker build support"
 echo ""
 echo -e "${BLUE}🌐 Access your optimized BlobeVM at: http://localhost:3000${NC}"
 echo -e "${YELLOW}⏱️  Expected startup time: 30-60 seconds${NC}"
@@ -321,3 +376,4 @@ echo -e "   ${BLUE}Memory:${NC} 6GB limit for stability"
 echo -e "   ${BLUE}CPU:${NC} 2 cores for efficiency"
 echo -e "   ${BLUE}Storage:${NC} 32GB optimized"
 echo -e "   ${BLUE}Desktop:${NC} XFCE4 only (fastest)"
+echo -e "   ${BLUE}Docker Method:${NC} $DOCKER_BUILD_METHOD (auto-detected)"
