@@ -8,26 +8,27 @@ echo "**** Starting optimized XFCE4 session for maximum speed ****"
 setterm blank 0
 setterm powerdown 0
 
-# Network optimizations for faster VNC streaming
-echo 'net.core.rmem_default = 262144' >> /etc/sysctl.conf
-echo 'net.core.rmem_max = 16777216' >> /etc/sysctl.conf
-echo 'net.core.wmem_default = 262144' >> /etc/sysctl.conf
-echo 'net.core.wmem_max = 16777216' >> /etc/sysctl.conf
-echo 'net.ipv4.tcp_rmem = 4096 65536 16777216' >> /etc/sysctl.conf
-echo 'net.ipv4.tcp_wmem = 4096 65536 16777216' >> /etc/sysctl.conf
+# Network/memory/CPU optimizations via sysctl (only possible when running as root)
+if [ "$(id -u)" -eq 0 ] && [ -w /etc/sysctl.conf ]; then
+  echo 'net.core.rmem_default = 262144' >> /etc/sysctl.conf
+  echo 'net.core.rmem_max = 16777216' >> /etc/sysctl.conf
+  echo 'net.core.wmem_default = 262144' >> /etc/sysctl.conf
+  echo 'net.core.wmem_max = 16777216' >> /etc/sysctl.conf
+  echo 'net.ipv4.tcp_rmem = 4096 65536 16777216' >> /etc/sysctl.conf
+  echo 'net.ipv4.tcp_wmem = 4096 65536 16777216' >> /etc/sysctl.conf
 
-# Memory optimizations for GitHub Codespace
-echo 'vm.swappiness = 10' >> /etc/sysctl.conf
-echo 'vm.vfs_cache_pressure = 50' >> /etc/sysctl.conf
-echo 'vm.dirty_ratio = 15' >> /etc/sysctl.conf
-echo 'vm.dirty_background_ratio = 5' >> /etc/sysctl.conf
+  echo 'vm.swappiness = 10' >> /etc/sysctl.conf
+  echo 'vm.vfs_cache_pressure = 50' >> /etc/sysctl.conf
+  echo 'vm.dirty_ratio = 15' >> /etc/sysctl.conf
+  echo 'vm.dirty_background_ratio = 5' >> /etc/sysctl.conf
 
-# CPU optimizations for 2-core system
-echo 'kernel.sched_migration_cost_ns = 5000000' >> /etc/sysctl.conf
-echo 'kernel.sched_autogroup_enabled = 0' >> /etc/sysctl.conf
+  echo 'kernel.sched_migration_cost_ns = 5000000' >> /etc/sysctl.conf
+  echo 'kernel.sched_autogroup_enabled = 0' >> /etc/sysctl.conf
 
-# Apply sysctl settings
-sysctl -p > /dev/null 2>&1
+  sysctl -p > /dev/null 2>&1 || true
+else
+  echo "(info) Skipping sysctl tuning (requires root)"
+fi
 
 # Optimize XFCE performance by disabling compositing for remote desktop
 if [ -f "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml ]; then
