@@ -38,15 +38,17 @@ echo "🔨 Building Docker image with correct method..."
 echo "   Using: $DOCKER_CMD"
 
 if [ "$DOCKER_METHOD" = "buildx" ]; then
-    echo "   ✅ Using Docker buildx (no --cpus or --memory flags)"
+    echo "   ✅ Using Docker buildx (compatible flags only)"
     DOCKER_BUILDKIT=1 $DOCKER_CMD --progress=plain --no-cache --load -t blobevm-optimized .
 else
     echo "   ✅ Using regular Docker build"
     DOCKER_BUILDKIT=1 $DOCKER_CMD --progress=plain --no-cache -t blobevm-optimized .
 fi
 
+BUILD_EXIT_CODE=$?
+
 # Fix 5: Check if build was successful
-if [ $? -eq 0 ]; then
+if [ $BUILD_EXIT_CODE -eq 0 ]; then
     echo "✅ Docker image built successfully!"
     
     # Fix 6: Start container with correct flags
@@ -83,7 +85,16 @@ if [ $? -eq 0 ]; then
         echo "💡 Check logs: docker logs BlobeVM-Optimized"
     fi
 else
-    echo "❌ Docker build failed"
+    echo "❌ Docker build failed (exit code: $BUILD_EXIT_CODE)"
+    echo "💡 This might be due to:"
+    echo "   - Network issues during package download"
+    echo "   - Insufficient disk space"
+    echo "   - Memory constraints"
+    echo ""
     echo "💡 Try manual build:"
     echo "   DOCKER_BUILDKIT=1 docker build --no-cache -t blobevm-optimized ."
+    echo ""
+    echo "💡 Or check system resources:"
+    echo "   docker system df"
+    echo "   free -h"
 fi

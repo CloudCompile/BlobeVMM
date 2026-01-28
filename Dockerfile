@@ -48,11 +48,11 @@ COPY /root/ /
 
 # Ultra-optimized installation for maximum speed with progress indication
 RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
-    # Update package lists once with parallel downloads
-    apt-get update --parallel=4 && \
+    # Update package lists once
+    apt-get update && \
     # Add Mozilla PPA for optimized Firefox
     add-apt-repository -y --no-install-recommends ppa:mozillateam/ppa && \
-    apt-get update --parallel=4 && \
+    apt-get update && \
     # Install XFCE4 and essential apps in single layer for speed
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
         # XFCE4 Core - lightweight and fastest
