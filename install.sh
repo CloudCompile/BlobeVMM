@@ -124,7 +124,7 @@ for i in {1..3}; do
         1) cat > options.json << 'EOF'
 {
   "defaultapps": [0, 1, 2],
-  "apps": [0],
+  "apps": [],
   "performance": [0, 1, 2],
   "enablekvm": true,
   "DE": "XFCE4 (Lightweight)",
