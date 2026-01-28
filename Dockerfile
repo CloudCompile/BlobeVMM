@@ -83,14 +83,8 @@ RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
     /installapps.sh && \
     # Apply ultra-optimizations for XFCE4
     echo "⚡ Applying ultra-optimizations for maximum speed" && \
-    # Remove ALL unnecessary autostart items for maximum speed
-    rm -f /etc/xdg/autostart/*.desktop && \
-    mkdir -p /etc/xdg/autostart && \
-    # Create minimal autostart for essential services only
-    echo '[Desktop Entry]' > /etc/xdg/autostart/xfce4-session.desktop && \
-    echo 'Type=Application' >> /etc/xdg/autostart/xfce4-session.desktop && \
-    echo 'Name=XFCE4 Session' >> /etc/xdg/autostart/xfce4-session.desktop && \
-    echo 'Exec=/usr/bin/xfce4-session' >> /etc/xdg/autostart/xfce4-session.desktop && \
+    # Keep upstream XDG autostart entries (some are required for a stable session).
+    : && \
     # Set ultra-optimized desktop settings
     mkdir -p /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml && \
     # Disable all visual effects for maximum streaming speed

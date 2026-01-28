@@ -61,6 +61,9 @@ if [ $BUILD_EXIT_CODE -eq 0 ]; then
     # Fix 6: Start container with correct flags
     echo "🚀 Starting container..."
 
+    mkdir -p Save/Desktop
+    rm -f Save/Desktop/google-chrome.desktop Save/Desktop/steam.desktop Save/Desktop/minecraft-launcher.desktop 2>/dev/null || true
+
     # Recreate the container if it already exists
     if docker ps -a --format '{{.Names}}' 2>/dev/null | grep -qx "BlobeVM-Optimized"; then
         docker rm -f BlobeVM-Optimized >/dev/null 2>&1 || true
@@ -72,11 +75,19 @@ if [ $BUILD_EXIT_CODE -eq 0 ]; then
         PULL_NEVER="--pull=never"
     fi
 
+    # KVM is optional in many environments
+    KVM_ARGS=""
+    if [ -e /dev/kvm ]; then
+        KVM_ARGS="--device=/dev/kvm"
+    else
+        echo "⚠️  /dev/kvm not found - running without KVM acceleration"
+    fi
+
     docker run $PULL_NEVER -d \
       --name=BlobeVM-Optimized \
       -e PUID=1000 \
       -e PGID=1000 \
-      --device=/dev/kvm \
+      $KVM_ARGS \
       --security-opt seccomp=unconfined \
       -e TZ=Etc/UTC \
       -e SUBFOLDER=/ \

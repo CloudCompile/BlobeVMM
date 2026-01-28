@@ -176,6 +176,22 @@ Also: if you are opening the forwarded port **inside the VS Code/Codespaces prev
    docker restart BlobeVM-Optimized
    ```
 
+### If Apps Don’t Open (File Manager, Terminal, etc.)
+This is usually caused by a corrupted/stale XFCE session config in your persisted `Save/` volume.
+
+1. **Stop the container**:
+   ```bash
+   docker stop BlobeVM-Optimized
+   ```
+2. **Reset only XFCE config (recommended)**:
+   ```bash
+   rm -rf Save/.config/xfce4
+   ```
+3. **Start again**:
+   ```bash
+   docker start BlobeVM-Optimized
+   ```
+
 ### If VNC Connection Fails
 1. **Check port**: `netstat -tlnp | grep 3000`
 2. **Test accessibility**: `curl -I http://localhost:3000`

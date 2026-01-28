@@ -342,7 +342,12 @@ for i in {1..3}; do
     show_progress $i 3 "Setting up config"
     case $i in
         1) mkdir -p Save ;;
-        2) [ -d "root/config" ] && cp -r root/config/* Save 2>/dev/null || true ;;
+        2)
+            # Remove known stale desktop shortcuts from previous runs
+            mkdir -p Save/Desktop
+            rm -f Save/Desktop/google-chrome.desktop Save/Desktop/steam.desktop Save/Desktop/minecraft-launcher.desktop 2>/dev/null || true
+            [ -d "root/config" ] && cp -r root/config/* Save 2>/dev/null || true
+            ;;
         3) echo "Configuration directory ready" ;;
     esac
     sleep 0.3
@@ -362,12 +367,20 @@ if docker_cmd run --help 2>/dev/null | grep -q -- '--pull'; then
     PULL_NEVER="--pull=never"
 fi
 
+# KVM is optional in many environments (including some Codespaces)
+KVM_ARGS=""
+if [ -e /dev/kvm ]; then
+    KVM_ARGS="--device=/dev/kvm"
+else
+    echo -e "${YELLOW}⚠️  /dev/kvm not found - running without KVM acceleration${NC}"
+fi
+
 # Start optimized container with GitHub Codespace optimizations
 CONTAINER_ID=$(docker_cmd run $PULL_NEVER -d \
   --name=BlobeVM-Optimized \
   -e PUID=1000 \
   -e PGID=1000 \
-  --device=/dev/kvm \
+  $KVM_ARGS \
   --security-opt seccomp=unconfined \
   -e TZ=Etc/UTC \
   -e SUBFOLDER=/ \

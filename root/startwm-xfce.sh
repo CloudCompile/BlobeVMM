@@ -48,47 +48,44 @@ export QT_X11_NO_MITSHM=1
 export _X11_NO_MITSHM=1
 export _MITSHM=0
 
-# Start XFCE session with optimizations
-/usr/bin/startxfce4 > /dev/null 2>&1 &
-XFCE_PID=$!
+apply_post_start_tweaks() {
+  for _ in {1..15}; do
+    if [ -f "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml ]; then
+      sed -i \
+        '/use_compositing/c <property name="use_compositing" type="bool" value="false"/>' \
+        "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml || true
 
-# Wait a moment for XFCE to start
-sleep 2
+      sed -i \
+        '/show_dock_shadow/c <property name="show_dock_shadow" type="bool" value="false"/>' \
+        "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml || true
 
-# Additional performance optimizations after startup
-if [ -f "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml ]; then
-  # Disable window shadows for faster streaming
-  sed -i \
-    '/show_dock_shadow/c <property name="show_dock_shadow" type="bool" value="false"/>' \
-    "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
-  
-  # Disable tooltips for faster interaction
-  sed -i \
-    '/show_tooltips/c <property name="show_tooltips" type="bool" value="false"/>' \
-    "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
-  
-  # Disable workspace wrapping for better performance
-  sed -i \
-    '/wrap_workspaces/c <property name="wrap_workspaces" type="bool" value="false"/>' \
-    "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
-fi
+      sed -i \
+        '/show_tooltips/c <property name="show_tooltips" type="bool" value="false"/>' \
+        "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml || true
 
-# Disable desktop icons for faster startup and streaming
-if [ -f "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml ]; then
-  sed -i \
-    '/show-home/c <property name="show-home" type="bool" value="false"/>' \
-    "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
-  sed -i \
-    '/show-filesystem/c <property name="show-filesystem" type="bool" value="false"/>' \
-    "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
-  sed -i \
-    '/show-removable/c <property name="show-removable" type="bool" value="false"/>' \
-    "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
-fi
+      sed -i \
+        '/wrap_workspaces/c <property name="wrap_workspaces" type="bool" value="false"/>' \
+        "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml || true
 
-echo "**** Optimized XFCE4 session started successfully ****"
+      break
+    fi
+    sleep 1
+  done
 
-# Keep this script running as long as the XFCE session is alive.
-# If we exit early, s6/KasmVNC may restart the window manager repeatedly, causing
-# panel/systray issues like "notification area lost selection".
-wait "$XFCE_PID"
+  if [ -f "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml ]; then
+    sed -i \
+      '/show-home/c <property name="show-home" type="bool" value="false"/>' \
+      "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml || true
+    sed -i \
+      '/show-filesystem/c <property name="show-filesystem" type="bool" value="false"/>' \
+      "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml || true
+    sed -i \
+      '/show-removable/c <property name="show-removable" type="bool" value="false"/>' \
+      "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml || true
+  fi
+}
+
+apply_post_start_tweaks >/dev/null 2>&1 &
+
+echo "**** Starting XFCE4 (foreground) ****"
+exec /usr/bin/startxfce4 > /dev/null 2>&1
