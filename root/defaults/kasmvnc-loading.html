@@ -74,7 +74,7 @@
       </div>
       <div class="status" id="status">Initializing containers...</div>
       <div class="actions">
-        <a class="launch" href="/vnc.html?autoconnect=1">Launch session now</a>
+        <a class="launch" href="/vnc.html?autoconnect=1" target="_top" rel="noopener">Launch session now</a>
       </div>
     </main>
     <script>
@@ -86,6 +86,7 @@
       ];
       const progress = document.getElementById("progress");
       const status = document.getElementById("status");
+      const inIFrame = window.top !== window.self;
       let stepIndex = 0;
       let redirectScheduled = false;
 
@@ -97,6 +98,12 @@
         if (stepIndex >= steps.length && !redirectScheduled) {
           redirectScheduled = true;
           clearInterval(timer);
+
+          if (inIFrame) {
+            status.textContent = "If the session refuses to connect in the preview, open this port in a new browser tab.";
+            return;
+          }
+
           setTimeout(() => {
             window.location.replace("/vnc.html?autoconnect=1");
           }, redirectDelayMs);

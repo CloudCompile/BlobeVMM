@@ -160,6 +160,8 @@ curl -I http://localhost:3000
 ### If Port 3000 Shows "Unable to handle this request"
 This usually means the container is running but the web UI inside the container isn't ready (or it crashed during startup).
 
+Also: if you are opening the forwarded port **inside the VS Code/Codespaces preview panel**, the app may be blocked by iframe security headers and you'll see `...app.github.dev refused to connect`. In that case use **Ports → Open in Browser** (new tab) instead.
+
 1. **Check container status**:
    ```bash
    docker ps -a --filter name=BlobeVM-Optimized

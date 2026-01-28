@@ -1,0 +1,29 @@
+#!/usr/bin/with-contenv bash
+set -e
+
+# Ensure nginx log directory exists (some builds aggressively clean /var/log)
+mkdir -p /var/log/nginx
+: > /var/log/nginx/access.log
+: > /var/log/nginx/error.log
+chmod 755 /var/log/nginx
+chmod 644 /var/log/nginx/*.log
+
+if id abc >/dev/null 2>&1; then
+  chown -R abc:abc /var/log/nginx
+fi
+
+# GitHub Codespaces port forwarding UI embeds the service in an iframe.
+# Some upstream nginx configs send X-Frame-Options / CSP frame-ancestors headers
+# that block iframe embedding and surface as "<codespace>-3000.app.github.dev refused to connect".
+# Patch the nginx config to remove those headers when present.
+if [ -d /etc/nginx ]; then
+  mapfile -t files < <(grep -RIlE 'X-Frame-Options|frame-ancestors' /etc/nginx 2>/dev/null || true)
+  for f in "${files[@]}"; do
+    sed -i \
+      -e 's/^[[:space:]]*add_header[[:space:]]\+X-Frame-Options/# &/I' \
+      -e 's/^[[:space:]]*more_set_headers[[:space:]]\+.*X-Frame-Options/# &/I' \
+      -e 's/^[[:space:]]*add_header[[:space:]]\+Content-Security-Policy.*frame-ancestors/# &/I' \
+      -e 's/^[[:space:]]*more_set_headers[[:space:]]\+.*frame-ancestors/# &/I' \
+      "$f" || true
+  done
+fi
