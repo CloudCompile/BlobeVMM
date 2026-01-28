@@ -1,32 +1,107 @@
+# Optimized .dockerignore for GitHub Codespace builds
+# Excludes unnecessary files to speed up Docker builds
+
 # Git files
 .git
 .gitignore
 .gitattributes
 
 # Documentation
-README.md
 *.md
+LICENSE
 
-# Development files
+# IDE files
 .vscode
 .idea
 *.swp
 *.swo
-*~
 
-# Python cache
+# Python
 __pycache__
 *.pyc
 *.pyo
 *.pyd
 .Python
-*.egg-info
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.pytest_cache
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs
+*.log
 
 # Temporary files
 *.tmp
 *.temp
-.DS_Store
-Thumbs.db
+
+# Cache directories
+.cache
+.npm
+.yarn-cache
 
 # Build artifacts
-*.log
+build/
+dist/
+*.egg-info/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Node modules (if any)
+node_modules/
+
+# Docker files (except the ones we need)
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# GitHub specific
+.github/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Test files
+tests/
+test/
+*.test.js
+*.test.py
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Scripts that shouldn't be in the image
+install.sh
+validate-optimizations.sh
+installer.py
+installer.tcss

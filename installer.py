@@ -12,12 +12,14 @@ def savejson(json):
 #####################
 
 Head="""
-# BlobeVM Installer
+# BlobeVM Optimized Installer
 
-> BlobeVM (Powered by DesktopOnCodespaces)
+> BlobeVM Optimized (Powered by DesktopOnCodespaces)
 
-BlobeVM is a Virtual Machine that...
+BlobeVM Optimized is a ultra-fast Virtual Machine that...
 * Runs entirely in a web browser
+* Uses only XFCE4 for maximum speed
+* Optimized for GitHub Codespace (2 core, 8GB RAM)
 * Is unblocked
 * Has Windows app support
 * Has audio support
@@ -26,10 +28,9 @@ BlobeVM is a Virtual Machine that...
 * Is very fast
 """
 InstallHead="""
-# BlobeVM Installer
-"""     
-
-LINES = ["KDE Plasma (Heavy)", "XFCE4 (Lightweight)", "I3 (Very Lightweight)", "GNOME 42 (Very Heavy)", "Cinnamon", "LXQT"]
+# BlobeVM Optimized Installer
+Optimized for XFCE4 only - Maximum Speed
+"""
 
 class InstallScreen(Screen):
     CSS_PATH = "installer.tcss"
@@ -39,41 +40,43 @@ class InstallScreen(Screen):
         yield Markdown(InstallHead)
         yield Horizontal (
         Vertical (
-         Label("Default Apps (you should keep them)"),
+         Label("Essential Apps (Pre-selected for speed)"),
          SelectionList[int]( 
-            ("Wine", 0, True),
-            ("Chrome", 1, True),
-            ("Xarchiver", 2, True),
-            ("Discord", 3, True),
-            ("Steam", 4, True),
-            ("Minecraft", 5, True),
+            ("Firefox", 0, True),
+            ("XFCE4 Terminal", 1, True),
+            ("Mousepad", 2, True),
             id="defaultapps"
         ),),
         Vertical (
-         Label("Programming"),
+         Label("Optional Apps"),
          SelectionList[int]( 
-            ("OpenJDK 8 (jre)", 0),
-            ("OpenJDK 17 (jre)", 1),
-            ("VSCodium", 2),
-            id="programming"
+            ("Wine", 0),
+            ("VLC", 1),
+            ("LibreOffice", 2),
+            ("Discord", 3),
+            ("Steam", 4),
+            ("Minecraft", 5),
+            ("VSCodium", 6),
+            ("Synaptic", 7),
+            ("AQemu (VMs)", 8),
+            ("TLauncher", 9),
+            id="apps"
         ),),
         Vertical (
-         Label("Apps"),
+         Label("Performance"),
          SelectionList[int]( 
-            ("VLC", 0),
-            ("LibreOffice", 1),
-            ("Synaptic", 2),
-            ("AQemu (VMs)", 3),
-            ("TLauncher", 4),
-            id="apps"
+            ("Enable KVM Acceleration", 0, True),
+            ("Optimize Memory Usage", 1, True),
+            ("Enable Hardware Acceleration", 2, True),
+            id="performance"
         ),),
         )
 
         yield Vertical (
          Horizontal(
-            Label("\nDesktop Environment :"),
-            Select(id="de", value="XFCE4 (Lightweight)", options=((line, line) for line in LINES)),
-        ),)
+            Label("\nDesktop Environment: "),
+            Static("XFCE4 (Optimized for Speed)", id="de"),
+         ),)
         yield Horizontal (
             Button.error("Back", id="back"),
             Button.warning("Install NOW", id="in"),
@@ -82,7 +85,15 @@ class InstallScreen(Screen):
         if event.button.id == "back":
             app.pop_screen()
         if event.button.id == "in":
-            data = {"defaultapps": self.query_one("#defaultapps").selected, "programming": self.query_one("#programming").selected, "apps": self.query_one("#apps").selected, "enablekvm": True, "DE": self.query_one("#de").value}
+            # Always use XFCE4 for speed
+            data = {
+                "defaultapps": self.query_one("#defaultapps").selected,
+                "apps": self.query_one("#apps").selected,
+                "performance": self.query_one("#performance").selected,
+                "enablekvm": True,
+                "DE": "XFCE4 (Lightweight)",
+                "optimized": True
+            }
             savejson(data)
             app.exit()
 
@@ -94,7 +105,7 @@ class InstallApp(App):
         yield Markdown(Head)
         
         yield Vertical (
-            Button.success("Install", id="install"),
+            Button.success("Install Optimized BlobeVM", id="install"),
         )
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "cancel":

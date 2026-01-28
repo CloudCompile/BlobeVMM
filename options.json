@@ -1,7 +1,8 @@
 {
-  "defaultapps": [0, 1, 2, 3, 4, 5],
-  "programming": [],
-  "apps": [],
+  "defaultapps": [0, 1, 2],
+  "apps": [0],
+  "performance": [0, 1, 2],
   "enablekvm": true,
-  "DE": "XFCE4 (Lightweight)"
+  "DE": "XFCE4 (Lightweight)",
+  "optimized": true
 }
