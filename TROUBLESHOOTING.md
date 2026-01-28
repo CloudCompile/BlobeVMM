@@ -157,6 +157,23 @@ curl -I http://localhost:3000
 2. **Restart Docker**: `sudo systemctl restart docker`
 3. **Check resources**: `docker system df`
 
+### If Port 3000 Shows "Unable to handle this request"
+This usually means the container is running but the web UI inside the container isn't ready (or it crashed during startup).
+
+1. **Check container status**:
+   ```bash
+   docker ps -a --filter name=BlobeVM-Optimized
+   ```
+2. **Check logs**:
+   ```bash
+   docker logs --tail 200 BlobeVM-Optimized
+   ```
+3. **Wait a bit**: first start can take 1-3 minutes.
+4. **Restart**:
+   ```bash
+   docker restart BlobeVM-Optimized
+   ```
+
 ### If VNC Connection Fails
 1. **Check port**: `netstat -tlnp | grep 3000`
 2. **Test accessibility**: `curl -I http://localhost:3000`

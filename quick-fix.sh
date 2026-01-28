@@ -88,6 +88,29 @@ if [ $BUILD_EXIT_CODE -eq 0 ]; then
       blobevm-optimized
     
     if [ $? -eq 0 ]; then
+        echo "⏳ Waiting for web UI on port 3000..."
+
+        READY=0
+        for i in {1..90}; do
+            if curl -fsS --max-time 2 http://localhost:3000 >/dev/null 2>&1 || curl -fkSs --max-time 2 https://localhost:3000 >/dev/null 2>&1; then
+                READY=1
+                break
+            fi
+            if ! docker ps --format '{{.Names}}' 2>/dev/null | grep -qx "BlobeVM-Optimized"; then
+                echo "❌ Container exited during startup"
+                docker logs --tail 200 BlobeVM-Optimized || true
+                exit 1
+            fi
+            sleep 2
+        done
+
+        if [ $READY -ne 1 ]; then
+            echo "❌ Web UI is not responding on port 3000"
+            docker ps -a --filter name=BlobeVM-Optimized || true
+            docker logs --tail 200 BlobeVM-Optimized || true
+            exit 1
+        fi
+
         echo ""
         echo "🎉 SUCCESS! BlobeVM is now running!"
         echo ""
@@ -97,7 +120,7 @@ if [ $BUILD_EXIT_CODE -eq 0 ]; then
         echo "   ✅ Used correct Docker build flags"
         echo "   ✅ Started container successfully"
         echo ""
-        echo "🌐 Access at: http://localhost:3000"
+        echo "🌐 Access at: http://localhost:3000 (try https://localhost:3000 if your environment forces HTTPS)"
         echo "⏱️  Wait 30-60 seconds for full startup"
     else
         echo "❌ Container start failed"

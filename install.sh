@@ -363,7 +363,7 @@ if docker_cmd run --help 2>/dev/null | grep -q -- '--pull'; then
 fi
 
 # Start optimized container with GitHub Codespace optimizations
-docker_cmd run $PULL_NEVER -d \
+CONTAINER_ID=$(docker_cmd run $PULL_NEVER -d \
   --name=BlobeVM-Optimized \
   -e PUID=1000 \
   -e PGID=1000 \
@@ -378,7 +378,36 @@ docker_cmd run $PULL_NEVER -d \
   --memory=6g \
   --cpus=2 \
   --restart unless-stopped \
-  blobevm-optimized
+  blobevm-optimized)
+
+echo -e "${BLUE}⏳ Waiting for BlobeVM web UI on port 3000...${NC}"
+READY=0
+for i in {1..90}; do
+    show_progress $i 90 "Waiting for web UI"
+
+    if ! docker_cmd ps --format '{{.Names}}' 2>/dev/null | grep -qx "BlobeVM-Optimized"; then
+        echo -e "${RED}❌ Container exited during startup.${NC}"
+        echo -e "${YELLOW}Last 200 container log lines:${NC}"
+        docker_cmd logs --tail 200 BlobeVM-Optimized || true
+        exit 1
+    fi
+
+    if curl -fsS --max-time 2 http://localhost:3000 >/dev/null 2>&1 || curl -fkSs --max-time 2 https://localhost:3000 >/dev/null 2>&1; then
+        READY=1
+        break
+    fi
+    sleep 2
+done
+
+if [ $READY -ne 1 ]; then
+    echo -e "${RED}❌ BlobeVM web UI is not responding on port 3000 yet.${NC}"
+    echo -e "${YELLOW}💡 Container status:${NC}"
+    docker_cmd ps -a --filter name=BlobeVM-Optimized || true
+    echo -e "${YELLOW}💡 Last 200 container log lines:${NC}"
+    docker_cmd logs --tail 200 BlobeVM-Optimized || true
+    echo -e "${YELLOW}💡 Try restarting the container:${NC} docker_cmd restart BlobeVM-Optimized"
+    exit 1
+fi
 
 echo ""
 echo -e "${GREEN}🎉 BLOBEVM OPTIMIZED INSTALLATION COMPLETED!${NC}"
@@ -395,7 +424,7 @@ echo -e "   ${GREEN}✅${NC} Real-time progress bars implemented"
 echo -e "   ${GREEN}✅${NC} APT repository error handling"
 echo -e "   ${GREEN}✅${NC} Multi-method Docker build support"
 echo ""
-echo -e "${BLUE}🌐 Access your optimized BlobeVM at: http://localhost:3000${NC}"
+echo -e "${BLUE}🌐 Access your optimized BlobeVM at: http://localhost:3000 (try https://localhost:3000 if your environment forces HTTPS)${NC}"
 echo -e "${YELLOW}⏱️  Expected startup time: 30-60 seconds${NC}"
 echo -e "${PURPLE}🚀 Speed improvements: 40-60% faster than standard build${NC}"
 echo ""

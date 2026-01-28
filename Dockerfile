@@ -153,4 +153,4 @@ VOLUME /config
 
 # Health check for optimized performance
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:3000 || exit 1
+    CMD curl -fsS http://localhost:3000 >/dev/null 2>&1 || curl -fkSs https://localhost:3000 >/dev/null 2>&1 || exit 1
