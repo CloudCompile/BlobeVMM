@@ -8,25 +8,53 @@ web_roots=(
   "/opt/kasmvnc/www"
 )
 
-if [ -f "$loading_page" ]; then
-  for web_root in "${web_roots[@]}"; do
-    if [ -d "$web_root" ] && [ -f "$web_root/index.html" ]; then
-      if cmp -s "$loading_page" "$web_root/index.html"; then
-        echo "Loading page already installed in $web_root"
-        break
-      fi
-      backup_path="$web_root/index.html.bak"
-      if [ ! -f "$backup_path" ]; then
-        if ! cp "$web_root/index.html" "$backup_path"; then
-          echo "Failed to back up $web_root/index.html" >&2
-          continue
-        fi
-      fi
-      if cp "$loading_page" "$web_root/index.html"; then
-        break
-      else
-        echo "Failed to install loading page in $web_root" >&2
-      fi
-    fi
-  done
+enable="${BLOBEVM_LOADING_PAGE:-}"
+enable="$(echo "$enable" | tr '[:upper:]' '[:lower:]')"
+if [ "$enable" = "1" ] || [ "$enable" = "true" ] || [ "$enable" = "yes" ] || [ "$enable" = "on" ]; then
+  enable_loading_page=1
+else
+  enable_loading_page=0
 fi
+
+[ -f "$loading_page" ] || exit 0
+
+for web_root in "${web_roots[@]}"; do
+  if [ ! -d "$web_root" ] || [ ! -f "$web_root/index.html" ]; then
+    continue
+  fi
+
+  backup_path="$web_root/index.html.bak"
+
+  if [ "$enable_loading_page" -eq 0 ]; then
+    if [ -f "$backup_path" ] && cmp -s "$loading_page" "$web_root/index.html"; then
+      echo "Restoring default KasmVNC page in $web_root"
+      cp "$backup_path" "$web_root/index.html" || true
+    fi
+    continue
+  fi
+
+  if cmp -s "$loading_page" "$web_root/index.html"; then
+    if [ -f "$backup_path" ] && [ ! -f "$web_root/vnc.html" ]; then
+      cp "$backup_path" "$web_root/vnc.html" || true
+    fi
+    echo "Loading page already installed in $web_root"
+    break
+  fi
+
+  if [ ! -f "$backup_path" ]; then
+    if ! cp "$web_root/index.html" "$backup_path"; then
+      echo "Failed to back up $web_root/index.html" >&2
+      continue
+    fi
+  fi
+
+  if [ ! -f "$web_root/vnc.html" ]; then
+    cp "$backup_path" "$web_root/vnc.html" 2>/dev/null || cp "$web_root/index.html" "$web_root/vnc.html" || true
+  fi
+
+  if cp "$loading_page" "$web_root/index.html"; then
+    break
+  else
+    echo "Failed to install loading page in $web_root" >&2
+  fi
+done
