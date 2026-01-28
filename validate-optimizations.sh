@@ -2,11 +2,6 @@
 # Ultra-optimized validation script for GitHub Codespace BlobeVM
 # Ensures all optimizations are applied and build completes without errors
 
-set -e
-
-echo "🔍 Validating Ultra-Optimized BlobeVM for GitHub Codespace"
-echo "=================================================="
-
 # Function to check if command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
@@ -30,6 +25,9 @@ validate_dir() {
     echo "✅ Found: $1/"
 }
 
+echo "🔍 Validating Ultra-Optimized BlobeVM for GitHub Codespace"
+echo "=================================================="
+
 echo "📁 Validating Project Structure..."
 validate_file "Dockerfile"
 validate_file "install.sh"
@@ -49,13 +47,13 @@ else
     echo "❌ WARNING: Dockerfile may contain other desktop environments"
 fi
 
-if grep -q "BuildKit" Dockerfile; then
+if grep -q "# syntax=docker/dockerfile" Dockerfile; then
     echo "✅ BuildKit optimizations found"
 else
     echo "❌ WARNING: BuildKit optimizations missing"
 fi
 
-if grep -q "parallel" Dockerfile || grep -q "parallel" /home/engine/project/Dockerfile; then
+if grep -q "parallel" Dockerfile; then
     echo "✅ Parallel download optimizations found"
 else
     echo "❌ WARNING: Parallel download optimizations missing"
@@ -168,7 +166,7 @@ echo "🔍 Testing build context..."
 if tar -tzf /dev/null >/dev/null 2>&1; then
     echo "✅ Build context tools available"
 else
-    echo "❌ WARNING: Build context tools may not be available"
+    echo "⚠️  WARNING: Build context tools may not be available"
 fi
 
 echo ""
@@ -188,7 +186,7 @@ else
 fi
 
 # Check 2: BuildKit enabled
-if grep -q "DOCKER_BUILDKIT=1" install.sh; then
+if grep -q "# syntax=docker/dockerfile" Dockerfile; then
     echo "✅ BuildKit optimization: PASSED"
     ((OPTIMIZATION_SCORE++))
 else
@@ -252,7 +250,7 @@ else
 fi
 
 # Check 10: Parallel downloads
-if grep -q "parallel" Dockerfile || grep -q "parallel" /home/engine/project/Dockerfile; then
+if grep -q "parallel" Dockerfile; then
     echo "✅ Parallel download optimization: PASSED"
     ((OPTIMIZATION_SCORE++))
 else
