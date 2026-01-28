@@ -48,6 +48,8 @@ COPY /root/ /
 
 # Ultra-optimized installation for maximum speed with progress indication
 RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
+    # Ensure bundled scripts are executable (repo may not preserve +x)
+    chmod +x /installapps.sh /install-de.sh /startwm-*.sh /installable-apps/*.sh && \
     # Update package lists once
     apt-get update && \
     # Add Mozilla PPA for optimized Firefox
