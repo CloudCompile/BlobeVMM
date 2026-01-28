@@ -50,6 +50,7 @@ export _MITSHM=0
 
 # Start XFCE session with optimizations
 /usr/bin/startxfce4 > /dev/null 2>&1 &
+XFCE_PID=$!
 
 # Wait a moment for XFCE to start
 sleep 2
@@ -86,3 +87,8 @@ if [ -f "${HOME}"/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml ]; 
 fi
 
 echo "**** Optimized XFCE4 session started successfully ****"
+
+# Keep this script running as long as the XFCE session is alive.
+# If we exit early, s6/KasmVNC may restart the window manager repeatedly, causing
+# panel/systray issues like "notification area lost selection".
+wait "$XFCE_PID"
