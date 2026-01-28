@@ -51,7 +51,7 @@ RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
     # Update package lists once
     apt-get update && \
     # Add Mozilla PPA for optimized Firefox
-    add-apt-repository -y --no-install-recommends ppa:mozillateam/ppa && \
+    add-apt-repository -y ppa:mozillateam/ppa && \
     apt-get update && \
     # Install XFCE4 and essential apps in single layer for speed
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
