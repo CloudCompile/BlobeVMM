@@ -48,13 +48,18 @@ COPY /root/ /
 
 # Ultra-optimized installation for maximum speed with progress indication
 RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
+    # Ensure bundled scripts are executable (repo may not preserve +x)
+    chmod +x /installapps.sh /install-de.sh /startwm-*.sh /installable-apps/*.sh /etc/cont-init.d/* && \
     # Update package lists once
     apt-get update && \
     # Add Mozilla PPA for optimized Firefox
     add-apt-repository -y ppa:mozillateam/ppa && \
     apt-get update && \
     # Install XFCE4 and essential apps in single layer for speed
+    # (force-confold/force-confdef prevents dpkg conffile prompts when this repo pre-seeds configs like /etc/wgetrc)
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+        -o Dpkg::Options::="--force-confdef" \
+        -o Dpkg::Options::="--force-confold" \
         # XFCE4 Core - lightweight and fastest
         xfce4 \
         xubuntu-default-settings \
@@ -78,14 +83,8 @@ RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
     /installapps.sh && \
     # Apply ultra-optimizations for XFCE4
     echo "⚡ Applying ultra-optimizations for maximum speed" && \
-    # Remove ALL unnecessary autostart items for maximum speed
-    rm -f /etc/xdg/autostart/*.desktop && \
-    mkdir -p /etc/xdg/autostart && \
-    # Create minimal autostart for essential services only
-    echo '[Desktop Entry]' > /etc/xdg/autostart/xfce4-session.desktop && \
-    echo 'Type=Application' >> /etc/xdg/autostart/xfce4-session.desktop && \
-    echo 'Name=XFCE4 Session' >> /etc/xdg/autostart/xfce4-session.desktop && \
-    echo 'Exec=/usr/bin/xfce4-session' >> /etc/xdg/autostart/xfce4-session.desktop && \
+    # Keep upstream XDG autostart entries (some are required for a stable session).
+    : && \
     # Set ultra-optimized desktop settings
     mkdir -p /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml && \
     # Disable all visual effects for maximum streaming speed
@@ -138,7 +137,10 @@ RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
       /root/.node_repl_history \
       /root/.npm \
       /root/.yarn-cache \
-      /root/.cache
+      /root/.cache && \
+    # nginx requires /var/log/nginx to exist
+    mkdir -p /var/log/nginx && \
+    touch /var/log/nginx/access.log /var/log/nginx/error.log
 
 # Expose optimized port
 EXPOSE 3000
@@ -148,4 +150,4 @@ VOLUME /config
 
 # Health check for optimized performance
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:3000 || exit 1
+    CMD curl -fsS http://localhost:3000 >/dev/null 2>&1 || curl -fkSs https://localhost:3000 >/dev/null 2>&1 || exit 1

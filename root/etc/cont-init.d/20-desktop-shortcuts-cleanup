@@ -1,0 +1,17 @@
+#!/usr/bin/with-contenv bash
+set -e
+
+desktop_dir="/config/Desktop"
+[ -d "$desktop_dir" ] || exit 0
+
+if [ ! -x /usr/bin/google-chrome-stable ]; then
+  rm -f "$desktop_dir/google-chrome.desktop" 2>/dev/null || true
+fi
+
+if [ ! -x /usr/bin/steam ] && [ ! -x /usr/games/steam ]; then
+  rm -f "$desktop_dir/steam.desktop" 2>/dev/null || true
+fi
+
+if [ ! -x /usr/bin/minecraft-launcher ]; then
+  rm -f "$desktop_dir/minecraft-launcher.desktop" 2>/dev/null || true
+fi

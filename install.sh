@@ -2,6 +2,7 @@
 # Optimized installation script for GitHub Codespace with sudo handling and real-time progress bars
 # Maximum speed installation of BlobeVM XFCE4
 set -e  # Exit on error
+set -o pipefail  # Ensure piped commands fail the script when the first command fails
 
 # Color codes for output
 RED='\033[0;31m'
@@ -123,7 +124,7 @@ for i in {1..3}; do
         1) cat > options.json << 'EOF'
 {
   "defaultapps": [0, 1, 2],
-  "apps": [0],
+  "apps": [],
   "performance": [0, 1, 2],
   "enablekvm": true,
   "DE": "XFCE4 (Lightweight)",
@@ -310,13 +311,43 @@ else
     fi
 fi
 
+# Verify image exists locally before trying to run it (prevents accidental registry pulls)
+if ! docker_cmd image inspect blobevm-optimized:latest >/dev/null 2>&1 && ! docker_cmd image inspect blobevm-optimized >/dev/null 2>&1; then
+    echo -e "${YELLOW}⚠️  Docker build finished, but image 'blobevm-optimized' was not found locally.${NC}"
+    echo -e "${YELLOW}💡 This can happen with some buildx setups when the result isn't loaded into the local daemon.${NC}"
+    echo -e "${BLUE}🔄 Trying an alternative build to force a local image...${NC}"
+
+    if [ "$DOCKER_BUILD_METHOD" = "buildx" ]; then
+        DOCKER_BUILDKIT=1 docker_cmd build --no-cache -t blobevm-optimized . >> "$BUILD_LOG" 2>&1 || true
+    else
+        if docker_cmd buildx version >/dev/null 2>&1; then
+            DOCKER_BUILDKIT=1 docker_cmd buildx build --no-cache --load -t blobevm-optimized . >> "$BUILD_LOG" 2>&1 || true
+        else
+            DOCKER_BUILDKIT=1 docker_cmd build --no-cache -t blobevm-optimized . >> "$BUILD_LOG" 2>&1 || true
+        fi
+    fi
+
+    if ! docker_cmd image inspect blobevm-optimized:latest >/dev/null 2>&1 && ! docker_cmd image inspect blobevm-optimized >/dev/null 2>&1; then
+        echo -e "${RED}❌ Image still not found locally after fallback build.${NC}"
+        echo -e "${YELLOW}💡 Check the build log: $BUILD_LOG${NC}"
+        echo -e "${YELLOW}💡 Last 50 log lines:${NC}"
+        tail -n 50 "$BUILD_LOG" || true
+        exit 1
+    fi
+fi
+
 # Create optimized configuration directory with progress bar
 echo -e "${CYAN}📁 Setting up optimized configuration...${NC}"
 for i in {1..3}; do
     show_progress $i 3 "Setting up config"
     case $i in
         1) mkdir -p Save ;;
-        2) [ -d "root/config" ] && cp -r root/config/* Save 2>/dev/null || true ;;
+        2)
+            # Remove known stale desktop shortcuts from previous runs
+            mkdir -p Save/Desktop
+            rm -f Save/Desktop/google-chrome.desktop Save/Desktop/steam.desktop Save/Desktop/minecraft-launcher.desktop 2>/dev/null || true
+            [ -d "root/config" ] && cp -r root/config/* Save 2>/dev/null || true
+            ;;
         3) echo "Configuration directory ready" ;;
     esac
     sleep 0.3
@@ -324,23 +355,72 @@ done
 
 echo -e "${GREEN}🚀 Starting optimized BlobeVM container...${NC}"
 
+# Recreate the container if it already exists
+if docker_cmd ps -a --format '{{.Names}}' 2>/dev/null | grep -qx "BlobeVM-Optimized"; then
+    echo -e "${YELLOW}⚠️  Existing container 'BlobeVM-Optimized' found - recreating...${NC}"
+    docker_cmd rm -f BlobeVM-Optimized >/dev/null 2>&1 || true
+fi
+
+# Avoid accidental registry pulls when the local image is missing
+PULL_NEVER=""
+if docker_cmd run --help 2>/dev/null | grep -q -- '--pull'; then
+    PULL_NEVER="--pull=never"
+fi
+
+# KVM is optional in many environments (including some Codespaces)
+KVM_ARGS=""
+if [ -e /dev/kvm ]; then
+    KVM_ARGS="--device=/dev/kvm"
+else
+    echo -e "${YELLOW}⚠️  /dev/kvm not found - running without KVM acceleration${NC}"
+fi
+
 # Start optimized container with GitHub Codespace optimizations
-docker_cmd run -d \
+CONTAINER_ID=$(docker_cmd run $PULL_NEVER -d \
   --name=BlobeVM-Optimized \
   -e PUID=1000 \
   -e PGID=1000 \
-  --device=/dev/kvm \
+  $KVM_ARGS \
   --security-opt seccomp=unconfined \
   -e TZ=Etc/UTC \
   -e SUBFOLDER=/ \
   -e TITLE="BlobeVM XFCE4 Optimized" \
   -p 3000:3000 \
   --shm-size=2g \
-  -v $(pwd)/Save:/config \
+  -v "$(pwd)/Save:/config" \
   --memory=6g \
   --cpus=2 \
   --restart unless-stopped \
-  blobevm-optimized
+  blobevm-optimized)
+
+echo -e "${BLUE}⏳ Waiting for BlobeVM web UI on port 3000...${NC}"
+READY=0
+for i in {1..90}; do
+    show_progress $i 90 "Waiting for web UI"
+
+    if ! docker_cmd ps --format '{{.Names}}' 2>/dev/null | grep -qx "BlobeVM-Optimized"; then
+        echo -e "${RED}❌ Container exited during startup.${NC}"
+        echo -e "${YELLOW}Last 200 container log lines:${NC}"
+        docker_cmd logs --tail 200 BlobeVM-Optimized || true
+        exit 1
+    fi
+
+    if curl -fsS --max-time 2 http://localhost:3000 >/dev/null 2>&1 || curl -fkSs --max-time 2 https://localhost:3000 >/dev/null 2>&1; then
+        READY=1
+        break
+    fi
+    sleep 2
+done
+
+if [ $READY -ne 1 ]; then
+    echo -e "${RED}❌ BlobeVM web UI is not responding on port 3000 yet.${NC}"
+    echo -e "${YELLOW}💡 Container status:${NC}"
+    docker_cmd ps -a --filter name=BlobeVM-Optimized || true
+    echo -e "${YELLOW}💡 Last 200 container log lines:${NC}"
+    docker_cmd logs --tail 200 BlobeVM-Optimized || true
+    echo -e "${YELLOW}💡 Try restarting the container:${NC} docker_cmd restart BlobeVM-Optimized"
+    exit 1
+fi
 
 echo ""
 echo -e "${GREEN}🎉 BLOBEVM OPTIMIZED INSTALLATION COMPLETED!${NC}"
@@ -357,7 +437,7 @@ echo -e "   ${GREEN}✅${NC} Real-time progress bars implemented"
 echo -e "   ${GREEN}✅${NC} APT repository error handling"
 echo -e "   ${GREEN}✅${NC} Multi-method Docker build support"
 echo ""
-echo -e "${BLUE}🌐 Access your optimized BlobeVM at: http://localhost:3000${NC}"
+echo -e "${BLUE}🌐 Access your optimized BlobeVM at: http://localhost:3000 (try https://localhost:3000 if your environment forces HTTPS)${NC}"
 echo -e "${YELLOW}⏱️  Expected startup time: 30-60 seconds${NC}"
 echo -e "${PURPLE}🚀 Speed improvements: 40-60% faster than standard build${NC}"
 echo ""

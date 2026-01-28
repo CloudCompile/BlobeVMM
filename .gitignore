@@ -1,0 +1,15 @@
+# Runtime / local state
+Save/
+build_progress.log
+*.log
+
+# Editor / OS cruft
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*~
+
+# Python
+__pycache__/
+*.pyc

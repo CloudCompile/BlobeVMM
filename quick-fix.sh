@@ -50,25 +50,78 @@ BUILD_EXIT_CODE=$?
 # Fix 5: Check if build was successful
 if [ $BUILD_EXIT_CODE -eq 0 ]; then
     echo "✅ Docker image built successfully!"
-    
+
+    # Verify image exists locally before trying to run it
+    if ! docker image inspect blobevm-optimized:latest >/dev/null 2>&1 && ! docker image inspect blobevm-optimized >/dev/null 2>&1; then
+        echo "❌ Build reported success, but image 'blobevm-optimized' was not found locally"
+        echo "💡 Try rebuilding, or check for build errors above"
+        exit 1
+    fi
+
     # Fix 6: Start container with correct flags
     echo "🚀 Starting container..."
-    docker run -d \
+
+    mkdir -p Save/Desktop
+    rm -f Save/Desktop/google-chrome.desktop Save/Desktop/steam.desktop Save/Desktop/minecraft-launcher.desktop 2>/dev/null || true
+
+    # Recreate the container if it already exists
+    if docker ps -a --format '{{.Names}}' 2>/dev/null | grep -qx "BlobeVM-Optimized"; then
+        docker rm -f BlobeVM-Optimized >/dev/null 2>&1 || true
+    fi
+
+    # Avoid accidental registry pulls when the local image is missing
+    PULL_NEVER=""
+    if docker run --help 2>/dev/null | grep -q -- '--pull'; then
+        PULL_NEVER="--pull=never"
+    fi
+
+    # KVM is optional in many environments
+    KVM_ARGS=""
+    if [ -e /dev/kvm ]; then
+        KVM_ARGS="--device=/dev/kvm"
+    else
+        echo "⚠️  /dev/kvm not found - running without KVM acceleration"
+    fi
+
+    docker run $PULL_NEVER -d \
       --name=BlobeVM-Optimized \
       -e PUID=1000 \
       -e PGID=1000 \
-      --device=/dev/kvm \
+      $KVM_ARGS \
       --security-opt seccomp=unconfined \
       -e TZ=Etc/UTC \
       -e SUBFOLDER=/ \
       -e TITLE="BlobeVM XFCE4 Optimized" \
       -p 3000:3000 \
       --shm-size=2g \
-      -v $(pwd)/Save:/config \
+      -v "$(pwd)/Save:/config" \
       --restart unless-stopped \
       blobevm-optimized
     
     if [ $? -eq 0 ]; then
+        echo "⏳ Waiting for web UI on port 3000..."
+
+        READY=0
+        for i in {1..90}; do
+            if curl -fsS --max-time 2 http://localhost:3000 >/dev/null 2>&1 || curl -fkSs --max-time 2 https://localhost:3000 >/dev/null 2>&1; then
+                READY=1
+                break
+            fi
+            if ! docker ps --format '{{.Names}}' 2>/dev/null | grep -qx "BlobeVM-Optimized"; then
+                echo "❌ Container exited during startup"
+                docker logs --tail 200 BlobeVM-Optimized || true
+                exit 1
+            fi
+            sleep 2
+        done
+
+        if [ $READY -ne 1 ]; then
+            echo "❌ Web UI is not responding on port 3000"
+            docker ps -a --filter name=BlobeVM-Optimized || true
+            docker logs --tail 200 BlobeVM-Optimized || true
+            exit 1
+        fi
+
         echo ""
         echo "🎉 SUCCESS! BlobeVM is now running!"
         echo ""
@@ -78,7 +131,7 @@ if [ $BUILD_EXIT_CODE -eq 0 ]; then
         echo "   ✅ Used correct Docker build flags"
         echo "   ✅ Started container successfully"
         echo ""
-        echo "🌐 Access at: http://localhost:3000"
+        echo "🌐 Access at: http://localhost:3000 (try https://localhost:3000 if your environment forces HTTPS)"
         echo "⏱️  Wait 30-60 seconds for full startup"
     else
         echo "❌ Container start failed"
