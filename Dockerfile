@@ -60,6 +60,13 @@ RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
         -o Dpkg::Options::="--force-confdef" \
         -o Dpkg::Options::="--force-confold" \
+        # Audio system packages for microphone support
+        pulseaudio \
+        pulseaudio-utils \
+        alsa-utils \
+        alsa-base \
+        alsa-oss \
+        pavucontrol \
         # XFCE4 Core - lightweight and fastest
         xfce4 \
         xubuntu-default-settings \
@@ -142,8 +149,9 @@ RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
     mkdir -p /var/log/nginx && \
     touch /var/log/nginx/access.log /var/log/nginx/error.log
 
-# Expose optimized port
+# Expose optimized port and audio ports
 EXPOSE 3000
+EXPOSE 4713
 
 # Set optimized volume
 VOLUME /config
