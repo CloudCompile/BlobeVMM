@@ -46,15 +46,71 @@
 - Uses shared memory optimization (2GB)
 - Optimizes for 8GB RAM constraint
 
-### 🚨 Issue: Network Timeouts
-**Error**: Network timeouts during package installation
+### 🚨 Issue: Microphone Not Working
+**Error**: "Microphone not detected" or "No audio input device found"
+
+**Solution**: The audio system has been added to BlobeVM. To enable microphone functionality:
+
+1. **Ensure Audio Device Support**:
+   ```bash
+   # Check if host has audio devices
+   ls -la /dev/snd/
+   ```
+
+2. **Run Container with Audio Support**:
+   ```bash
+   docker run ... --device=/dev/snd ...
+   ```
+
+3. **Test Microphone**:
+   ```bash
+   # Run the microphone test script
+   docker exec BlobeVM-Optimized /test-microphone.sh
+   ```
+
+4. **Browser Permissions**:
+   - When accessing BlobeVM in browser, allow microphone access when prompted
+   - Check browser settings: Settings > Privacy & Security > Microphone
+
+5. **Manual Audio Setup**:
+   ```bash
+   # Inside container, start PulseAudio
+   docker exec -it BlobeVM-Optimized pulseaudio --start
+   
+   # Test recording
+   docker exec -it BlobeVM-Optimized arecord -d 3 -f cd test.wav
+   ```
+
+6. **Container Audio Restart**:
+   ```bash
+   docker restart BlobeVM-Optimized
+   ```
+
+### 🚨 Issue: Audio Device Not Accessible
+**Error**: "Permission denied" or "Device not found" when accessing audio devices
 
 **Solutions**:
-1. **Increase timeouts** in APT configuration
-2. **Use alternative mirrors**:
+1. **Check Host Audio Support**:
    ```bash
-   sudo sed -i 's|http://archive.ubuntu.com|https://mirror.us.leaseweb.net|g' /etc/apt/sources.list
+   # Verify host has audio devices
+   ls -la /dev/snd/
    ```
+
+2. **Add Audio Device to Container**:
+   ```bash
+   # Stop and remove container
+   docker stop BlobeVM-Optimized
+   docker rm BlobeVM-Optimized
+   
+   # Run with audio device support (the install.sh script now does this automatically)
+   ```
+
+3. **Check Container Audio Logs**:
+   ```bash
+   docker logs BlobeVM-Optimized | grep -i audio
+   ```
+
+### 🚨 Issue: Network Timeouts
 
 ## 🔧 Alternative Installation Methods
 

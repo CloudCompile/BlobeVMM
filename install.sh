@@ -375,17 +375,28 @@ else
     echo -e "${YELLOW}⚠️  /dev/kvm not found - running without KVM acceleration${NC}"
 fi
 
+# Audio device support (for microphone functionality)
+AUDIO_ARGS=""
+if [ -e /dev/snd ]; then
+    AUDIO_ARGS="--device=/dev/snd"
+    echo -e "${GREEN}✅ Audio device support enabled${NC}"
+else
+    echo -e "${YELLOW}⚠️  /dev/snd not found - microphone may not work${NC}"
+fi
+
 # Start optimized container with GitHub Codespace optimizations
 CONTAINER_ID=$(docker_cmd run $PULL_NEVER -d \
   --name=BlobeVM-Optimized \
   -e PUID=1000 \
   -e PGID=1000 \
   $KVM_ARGS \
+  $AUDIO_ARGS \
   --security-opt seccomp=unconfined \
   -e TZ=Etc/UTC \
   -e SUBFOLDER=/ \
   -e TITLE="BlobeVM XFCE4 Optimized" \
   -p 3000:3000 \
+  -p 4713:4713/udp \
   --shm-size=2g \
   -v "$(pwd)/Save:/config" \
   --memory=6g \
@@ -433,9 +444,18 @@ echo -e "   ${GREEN}✅${NC} Memory limited to 6GB for stability"
 echo -e "   ${GREEN}✅${NC} CPU cores limited to 2 for efficiency"
 echo -e "   ${GREEN}✅${NC} Shared memory optimized for streaming"
 echo -e "   ${GREEN}✅${NC} VNC streaming optimizations enabled"
+echo -e "   ${GREEN}✅${NC} Audio/Microphone support enabled"
+echo -e "   ${GREEN}✅${NC} PulseAudio audio system configured"
 echo -e "   ${GREEN}✅${NC} Real-time progress bars implemented"
 echo -e "   ${GREEN}✅${NC} APT repository error handling"
 echo -e "   ${GREEN}✅${NC} Multi-method Docker build support"
+echo ""
+echo -e "${BLUE}🎤 Audio/Microphone Features:${NC}"
+echo -e "   ${GREEN}✅${NC} PulseAudio audio system installed"
+echo -e "   ${GREEN}✅${NC} ALSA utilities for microphone support"
+echo -e "   ${GREEN}✅${NC} Pavucontrol for audio management"
+echo -e "   ${GREEN}✅${NC} Audio device access configured"
+echo -e "   ${GREEN}✅${NC} Browser microphone permissions supported"
 echo ""
 echo -e "${BLUE}🌐 Access your optimized BlobeVM at: http://localhost:3000 (try https://localhost:3000 if your environment forces HTTPS)${NC}"
 echo -e "${YELLOW}⏱️  Expected startup time: 30-60 seconds${NC}"
