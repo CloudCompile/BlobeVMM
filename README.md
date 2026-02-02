@@ -25,8 +25,8 @@ BlobeVM Optimized is a ultra-fast, lightweight virtual desktop that runs entirel
 
 ```bash
 # Clone and run the optimized installer
-git clone https://github.com/your-repo/blobevm-optimized
-cd blobevm-optimized
+git clone https://github.com/cloudcompile/BlobeVMM
+cd BlobeVMM
 chmod +x install.sh
 ./install.sh
 ```
