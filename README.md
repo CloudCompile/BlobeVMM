@@ -47,8 +47,12 @@ That's it! Your ultra-fast XFCE4 desktop will be ready in 8-12 minutes.
 
 ### Essential Apps (Pre-selected)
 - ✅ **Firefox** - Web browser
+- ✅ **Google Chrome** - Web browser
 - ✅ **XFCE4 Terminal** - Lightweight terminal
 - ✅ **Mousepad** - Text editor
+- ✅ **Wine** - Windows application support (EXE files)
+- ✅ **Synaptic** - Package manager for installing .deb files
+- ✅ **GDebi** - Easy .deb package installer
 
 ### Optional Performance Tools
 - 🔧 **htop** - System monitoring
@@ -56,11 +60,59 @@ That's it! Your ultra-fast XFCE4 desktop will be ready in 8-12 minutes.
 - 🗜️ **unzip/zip** - File compression
 
 ### Heavy Apps (Optional)
-- 🍷 **Wine** - Windows applications
+- 🍷 **Wine** - Windows applications (now included in essential apps)
 - 🎮 **Steam** - Gaming platform
 - 💬 **Discord** - Communication
 - 📹 **VLC** - Media player
 - 📊 **LibreOffice** - Office suite
+
+## 🆕 New Features
+
+### Windows Application Support (Wine)
+Run Windows `.exe` files directly in your Linux desktop:
+```bash
+# Run an EXE file
+wine your-app.exe
+
+# Install a Windows application
+wine setup.exe
+
+# Configure Wine
+winecfg
+```
+
+### Google Chrome
+Pre-installed Google Chrome for web browsing:
+- Access from Applications menu or terminal with `google-chrome`
+
+### Linux Package Installation
+Two easy ways to install `.deb` packages:
+
+**Option 1: GDebi (Simple)**
+```bash
+# Install a .deb file
+gdebi package.deb
+
+# Install without prompts
+gdebi -n package.deb
+```
+
+**Option 2: Synaptic (GUI)**
+```bash
+# Open Synaptic package manager
+synaptic
+
+# Search, browse, and install packages graphically
+```
+
+**Option 3: Command line**
+```bash
+# Install a .deb file
+sudo dpkg -i package.deb
+
+# Fix any missing dependencies
+sudo apt-get install -f
+```
 
 ## 🌐 Access Your Desktop
 
