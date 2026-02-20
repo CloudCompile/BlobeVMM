@@ -55,6 +55,10 @@ RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
     # Add Mozilla PPA for optimized Firefox
     add-apt-repository -y ppa:mozillateam/ppa && \
     apt-get update && \
+    # Add Google Chrome repository
+    wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee /etc/apt/sources.list.d/google-chrome.list && \
+    apt-get update && \
     # Install XFCE4 and essential apps in single layer for speed
     # (force-confold/force-confdef prevents dpkg conffile prompts when this repo pre-seeds configs like /etc/wgetrc)
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
@@ -75,10 +79,19 @@ RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
         mousepad \
         # Essential apps optimized for Codespace
         firefox \
+        google-chrome-stable \
         jq \
         wget \
         curl \
         ca-certificates \
+        # Wine prerequisites for EXE support
+        wine64 \
+        wine32 \
+        libwine \
+        wine \
+        # Package management tools
+        gdebi \
+        synaptic \
         # Performance and development tools
         htop \
         nano \

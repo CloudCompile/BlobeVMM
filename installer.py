@@ -40,26 +40,27 @@ class InstallScreen(Screen):
         yield Markdown(InstallHead)
         yield Horizontal (
         Vertical (
-         Label("Essential Apps (Pre-selected for speed)"),
-         SelectionList[int]( 
+          Label("Essential Apps (Pre-selected for speed)"),
+          SelectionList[int](
             ("Firefox", 0, True),
             ("XFCE4 Terminal", 1, True),
             ("Mousepad", 2, True),
+            ("Wine (EXE support)", 3, True),
+            ("Google Chrome", 4, True),
+            ("Synaptic (Package Manager)", 5, True),
             id="defaultapps"
         ),),
         Vertical (
-         Label("Optional Apps"),
-         SelectionList[int]( 
-            ("Wine", 0),
-            ("VLC", 1),
-            ("LibreOffice", 2),
-            ("Discord", 3),
-            ("Steam", 4),
-            ("Minecraft", 5),
-            ("VSCodium", 6),
-            ("Synaptic", 7),
-            ("AQemu (VMs)", 8),
-            ("TLauncher", 9),
+          Label("Optional Apps"),
+          SelectionList[int](
+            ("VLC", 0),
+            ("LibreOffice", 1),
+            ("Discord", 2),
+            ("Steam", 3),
+            ("Minecraft", 4),
+            ("VSCodium", 5),
+            ("AQemu (VMs)", 6),
+            ("TLauncher", 7),
             id="apps"
         ),),
         Vertical (
