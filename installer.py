@@ -18,7 +18,7 @@ Head="""
 
 BlobeVM Optimized is a ultra-fast Virtual Machine that...
 * Runs entirely in a web browser
-* Uses only XFCE4 for maximum speed
+* Uses Lubuntu (LXQt) for maximum speed
 * Optimized for GitHub Codespace (2 core, 8GB RAM)
 * Is unblocked
 * Has Windows app support
@@ -29,7 +29,7 @@ BlobeVM Optimized is a ultra-fast Virtual Machine that...
 """
 InstallHead="""
 # BlobeVM Optimized Installer
-Optimized for XFCE4 only - Maximum Speed
+Optimized for Lubuntu (LXQt) - Maximum Speed
 """
 
 class InstallScreen(Screen):
@@ -43,8 +43,8 @@ class InstallScreen(Screen):
           Label("Essential Apps (Pre-selected for speed)"),
           SelectionList[int](
             ("Firefox", 0, True),
-            ("XFCE4 Terminal", 1, True),
-            ("Mousepad", 2, True),
+            ("QTerminal", 1, True),
+            ("Featherpad", 2, True),
             ("Wine (EXE support)", 3, True),
             ("Google Chrome", 4, True),
             ("Synaptic (Package Manager)", 5, True),
@@ -76,7 +76,7 @@ class InstallScreen(Screen):
         yield Vertical (
          Horizontal(
             Label("\nDesktop Environment: "),
-            Static("XFCE4 (Optimized for Speed)", id="de"),
+            Static("Lubuntu (LXQt)", id="de"),
          ),)
         yield Horizontal (
             Button.error("Back", id="back"),
@@ -86,13 +86,13 @@ class InstallScreen(Screen):
         if event.button.id == "back":
             app.pop_screen()
         if event.button.id == "in":
-            # Always use XFCE4 for speed
+            # Always use Lubuntu (LXQt) for speed
             data = {
                 "defaultapps": self.query_one("#defaultapps").selected,
                 "apps": self.query_one("#apps").selected,
                 "performance": self.query_one("#performance").selected,
                 "enablekvm": True,
-                "DE": "XFCE4 (Lightweight)",
+                "DE": "Lubuntu (LXQt)",
                 "optimized": True
             }
             savejson(data)

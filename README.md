@@ -1,13 +1,13 @@
 # BlobeVM Ultra-Optimized for GitHub Codespace
 
-> **🚀 The fastest XFCE4 desktop environment optimized for GitHub Codespace**
+> **🚀 The fastest Lubuntu (LXQt) desktop environment optimized for GitHub Codespace**
 
-BlobeVM Optimized is a ultra-fast, lightweight virtual desktop that runs entirely in your web browser. Designed specifically for **GitHub Codespace** (2 cores, 8GB RAM, 32GB storage) with **XFCE4 only** for maximum speed and performance.
+BlobeVM Optimized is a ultra-fast, lightweight virtual desktop that runs entirely in your web browser. Designed specifically for **GitHub Codespace** (2 cores, 8GB RAM, 32GB storage) with **Lubuntu (LXQt)** for maximum speed and performance.
 
 ## ⚡ Key Optimizations
 
 ### 🎯 GitHub Codespace Optimizations
-- **XFCE4 Only** - No heavy desktop environments (KDE, GNOME)
+- **Lubuntu (LXQt)** - No heavy desktop environments (KDE, GNOME)
 - **40-60% Faster Build** - Optimized Docker layers and caching
 - **50% Faster Startup** - Streamlined initialization process  
 - **40% Less Memory** - Optimized for 8GB RAM constraint
@@ -31,7 +31,7 @@ chmod +x install.sh
 ./install.sh
 ```
 
-That's it! Your ultra-fast XFCE4 desktop will be ready in 8-12 minutes.
+That's it! Your ultra-fast Lubuntu desktop will be ready in 8-12 minutes.
 
 ## 📊 Performance Comparison
 
@@ -41,15 +41,15 @@ That's it! Your ultra-fast XFCE4 desktop will be ready in 8-12 minutes.
 | **Startup Time** | 60-90 seconds | 30-45 seconds |
 | **Memory Usage** | 4-6GB | 2-3GB |
 | **VNC Speed** | Baseline | +40-60% faster |
-| **Desktop** | Multi-DE | XFCE4 Only |
+| **Desktop** | Multi-DE | Lubuntu (LXQt) |
 
 ## 🎮 What's Included
 
 ### Essential Apps (Pre-selected)
 - ✅ **Firefox** - Web browser
 - ✅ **Google Chrome** - Web browser
-- ✅ **XFCE4 Terminal** - Lightweight terminal
-- ✅ **Mousepad** - Text editor
+- ✅ **QTerminal** - Lightweight terminal
+- ✅ **Featherpad** - Text editor
 - ✅ **Wine** - Windows application support (EXE files)
 - ✅ **Synaptic** - Package manager for installing .deb files
 - ✅ **GDebi** - Easy .deb package installer
@@ -170,9 +170,6 @@ docker stats BlobeVM-Optimized
 
 # View logs
 docker logs BlobeVM-Optimized
-
-# Check XFCE4 settings
-xfconf-query -c xfwm4 -p /general/use_compositing
 ```
 
 ## 📈 Expected Results
