@@ -3,6 +3,6 @@
   "apps": [],
   "performance": [0, 1, 2],
   "enablekvm": true,
-  "DE": "XFCE4 (Lightweight)",
+  "DE": "Lubuntu (LXQt)",
   "optimized": true
 }

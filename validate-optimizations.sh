@@ -41,8 +41,8 @@ echo "🔧 Validating Optimized Configuration..."
 
 # Check Dockerfile optimizations
 echo "🐳 Validating Dockerfile optimizations..."
-if grep -q "xfce4" Dockerfile && ! grep -q "kde\|gnome\|cinnamon\|lxqt" Dockerfile; then
-    echo "✅ Dockerfile contains XFCE4 only (no other DEs)"
+if grep -q "lxqt\|lubuntu" Dockerfile && ! grep -q "kde\|gnome\|cinnamon\|xfce4" Dockerfile; then
+    echo "✅ Dockerfile contains Lubuntu (LXQt) only (no other DEs)"
 else
     echo "❌ WARNING: Dockerfile may contain other desktop environments"
 fi
@@ -77,10 +77,10 @@ fi
 echo "⚙️  Validating configuration..."
 validate_file "options.json"
 
-if grep -q "XFCE4" options.json; then
-    echo "✅ XFCE4 desktop environment configured"
+if grep -q "Lubuntu\|LXQt" options.json; then
+    echo "✅ Lubuntu (LXQt) desktop environment configured"
 else
-    echo "❌ ERROR: XFCE4 not found in options.json"
+    echo "❌ ERROR: Lubuntu not found in options.json"
     exit 1
 fi
 
@@ -92,30 +92,30 @@ else
 fi
 
 echo ""
-echo "🖥️  Validating XFCE4-specific Files..."
+echo "🖥️  Validating Lubuntu (LXQt)-specific Files..."
 
-# Check XFCE4 installation script
+# Check Lubuntu installation script
 validate_file "root/install-de.sh"
 
-# Check if install-de.sh contains XFCE4 installation but not other DE installations
-if grep -q "xfce4" root/install-de.sh; then
+# Check if install-de.sh contains Lubuntu/LXQt installation but not other DE installations
+if grep -q "lxqt\|lubuntu" root/install-de.sh; then
     # Check if it contains other DE installations (not just cleanup)
-    if grep -E "install.*kde|install.*gnome|install.*cinnamon|install.*lxqt" root/install-de.sh >/dev/null; then
+    if grep -E "install.*kde|install.*gnome|install.*cinnamon|install.*xfce4" root/install-de.sh >/dev/null; then
         echo "❌ ERROR: install-de.sh contains other desktop environment installations"
     else
-        echo "✅ install-de.sh contains XFCE4 only"
+        echo "✅ install-de.sh contains Lubuntu (LXQt) only"
     fi
 else
-    echo "❌ ERROR: install-de.sh does not contain XFCE4"
+    echo "❌ ERROR: install-de.sh does not contain Lubuntu (LXQt)"
 fi
 
-# Check XFCE4 startup script
-validate_file "root/startwm-xfce.sh"
+# Check Lubuntu startup script
+validate_file "root/startwm-lxqt.sh"
 
-if grep -q "optimization" root/startwm-xfce.sh || grep -q "sysctl" root/startwm-xfce.sh; then
-    echo "✅ startwm-xfce.sh contains performance optimizations"
+if grep -q "optimization" root/startwm-lxqt.sh || grep -q "sysctl" root/startwm-lxqt.sh; then
+    echo "✅ startwm-lxqt.sh contains performance optimizations"
 else
-    echo "⚠️  WARNING: startwm-xfce.sh may lack performance optimizations"
+    echo "⚠️  WARNING: startwm-lxqt.sh may lack performance optimizations"
 fi
 
 echo ""
@@ -177,12 +177,12 @@ echo "=================================="
 OPTIMIZATION_SCORE=0
 MAX_SCORE=10
 
-# Check 1: XFCE4 only
-if grep -q "xfce4" Dockerfile && ! grep -q "kde\|gnome\|cinnamon\|lxqt" Dockerfile; then
-    echo "✅ XFCE4-only optimization: PASSED"
+# Check 1: Lubuntu (LXQt) only
+if grep -q "lxqt\|lubuntu" Dockerfile && ! grep -q "kde\|gnome\|cinnamon\|xfce4" Dockerfile; then
+    echo "✅ Lubuntu-only optimization: PASSED"
     ((OPTIMIZATION_SCORE++))
 else
-    echo "❌ XFCE4-only optimization: FAILED"
+    echo "❌ Lubuntu-only optimization: FAILED"
 fi
 
 # Check 2: BuildKit enabled
@@ -218,19 +218,19 @@ else
 fi
 
 # Check 6: VNC/Network optimizations
-if grep -q "network\|tcp\|vnc" root/startwm-xfce.sh; then
+if grep -q "network\|tcp\|vnc" root/startwm-lxqt.sh; then
     echo "✅ VNC/Network optimization: PASSED"
     ((OPTIMIZATION_SCORE++))
 else
     echo "❌ VNC/Network optimization: FAILED"
 fi
 
-# Check 7: XFCE4 startup optimizations
-if grep -q "compositing\|shadow" root/startwm-xfce.sh; then
-    echo "✅ XFCE4 startup optimization: PASSED"
+# Check 7: Lubuntu startup optimizations
+if grep -q "sysctl\|PulseAudio" root/startwm-lxqt.sh; then
+    echo "✅ Lubuntu startup optimization: PASSED"
     ((OPTIMIZATION_SCORE++))
 else
-    echo "❌ XFCE4 startup optimization: FAILED"
+    echo "❌ Lubuntu startup optimization: FAILED"
 fi
 
 # Check 8: .dockerignore optimizations
@@ -286,7 +286,7 @@ if [ "$OPTIMIZATION_SCORE" -ge 8 ]; then
     echo "✅ Or manual build: DOCKER_BUILDKIT=1 docker build -t blobevm-optimized ."
 else
     echo "🔧 Review failed optimization checks above"
-    echo "🔧 Ensure all XFCE4-specific files are properly configured"
+    echo "🔧 Ensure all Lubuntu (LXQt)-specific files are properly configured"
     echo "🔧 Then run this validation script again"
 fi
 

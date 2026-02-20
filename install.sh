@@ -1,6 +1,6 @@
 #!/bin/bash
 # Optimized installation script for GitHub Codespace with sudo handling and real-time progress bars
-# Maximum speed installation of BlobeVM XFCE4
+# Maximum speed installation of BlobeVM Lubuntu (LXQt)
 set -e  # Exit on error
 set -o pipefail  # Ensure piped commands fail the script when the first command fails
 
@@ -87,7 +87,7 @@ fix_apt_repositories() {
 }
 
 echo -e "${GREEN}🚀 Optimized BlobeVM Installation for GitHub Codespace${NC}"
-echo -e "${PURPLE}⚡ XFCE4 Only - Maximum Speed Configuration${NC}"
+echo -e "${PURPLE}⚡ Lubuntu (LXQt) - Maximum Speed Configuration${NC}"
 echo -e "${CYAN}💾 Optimized for: 2 cores, 8GB RAM, 32GB storage${NC}"
 echo ""
 
@@ -117,7 +117,7 @@ DOCKER_BUILD_METHOD=$(detect_docker_build_method)
 echo -e "${BLUE}🐳 Docker build method detected: $DOCKER_BUILD_METHOD${NC}"
 
 # Create optimized options.json with progress bar
-echo -e "${CYAN}⚙️  Creating optimized XFCE4 configuration...${NC}"
+echo -e "${CYAN}⚙️  Creating optimized Lubuntu (LXQt) configuration...${NC}"
 for i in {1..3}; do
     show_progress $i 3 "Creating configuration"
     case $i in
@@ -127,7 +127,7 @@ for i in {1..3}; do
   "apps": [],
   "performance": [0, 1, 2],
   "enablekvm": true,
-  "DE": "XFCE4 (Lightweight)",
+  "DE": "Lubuntu (LXQt)",
   "optimized": true
 }
 EOF
@@ -228,7 +228,7 @@ fi
 echo "🏗️  Building optimized Docker image with BuildKit..."
 echo "   - Using multi-stage builds for speed"
 echo "   - Leveraging BuildKit caching"
-echo "   - XFCE4 only for maximum performance"
+echo "   - Lubuntu (LXQt) for maximum performance"
 echo "   - Docker build method: $DOCKER_BUILD_METHOD"
 
 # Build with optimized Docker settings for GitHub Codespace
@@ -394,7 +394,7 @@ CONTAINER_ID=$(docker_cmd run $PULL_NEVER -d \
   --security-opt seccomp=unconfined \
   -e TZ=Etc/UTC \
   -e SUBFOLDER=/ \
-  -e TITLE="BlobeVM XFCE4 Optimized" \
+  -e TITLE="BlobeVM Lubuntu Optimized" \
   -p 3000:3000 \
   -p 4713:4713/udp \
   --shm-size=2g \
@@ -437,7 +437,7 @@ echo ""
 echo -e "${GREEN}🎉 BLOBEVM OPTIMIZED INSTALLATION COMPLETED!${NC}"
 echo ""
 echo -e "${CYAN}📊 Optimizations Applied:${NC}"
-echo -e "   ${GREEN}✅${NC} XFCE4 only (fastest desktop environment)"
+echo -e "   ${GREEN}✅${NC} Lubuntu (LXQt) (fastest desktop environment)"
 echo -e "   ${GREEN}✅${NC} GitHub Codespace specific optimizations"
 echo -e "   ${GREEN}✅${NC} Docker BuildKit caching enabled"
 echo -e "   ${GREEN}✅${NC} Memory limited to 6GB for stability"
@@ -475,5 +475,5 @@ echo -e "   ${BLUE}GitHub Codespace:${NC} Detected and optimized"
 echo -e "   ${BLUE}Memory:${NC} 6GB limit for stability"
 echo -e "   ${BLUE}CPU:${NC} 2 cores for efficiency"
 echo -e "   ${BLUE}Storage:${NC} 32GB optimized"
-echo -e "   ${BLUE}Desktop:${NC} XFCE4 only (fastest)"
+echo -e "   ${BLUE}Desktop:${NC} Lubuntu (LXQt) (fastest)"
 echo -e "   ${BLUE}Docker Method:${NC} $DOCKER_BUILD_METHOD (auto-detected)"

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.4
 # Ultra-optimized multi-stage Dockerfile for GitHub Codespace (2 core, 8GB RAM, 32GB storage)
-# XFCE4 only for maximum speed and performance
+# Lubuntu (LXQt) for maximum speed and performance
 # Build with: DOCKER_BUILDKIT=1 docker build -t blobevm-optimized .
 
 # Stage 1: Build dependencies (optimized for speed)
@@ -11,9 +11,9 @@ ARG BUILD_DATE
 ARG VERSION
 
 # Set build labels
-LABEL build_version="[Ultra-Optimized XFCE4] Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
+LABEL build_version="[Ultra-Optimized Lubuntu] Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 LABEL maintainer="blobevm-ultra-optimized"
-LABEL description="Ultra-fast XFCE4 desktop optimized for GitHub Codespace"
+LABEL description="Ultra-fast Lubuntu (LXQt) desktop optimized for GitHub Codespace"
 
 # Configure APT for maximum performance during build
 RUN echo 'Acquire::Languages "none";' > /etc/apt/apt.conf.d/docker-no-languages && \
@@ -26,7 +26,7 @@ RUN echo 'Acquire::Languages "none";' > /etc/apt/apt.conf.d/docker-no-languages 
     echo 'Acquire::http::Timeout "15";' >> /etc/apt/apt.conf.d/docker-retries && \
     echo 'Acquire::https::Timeout "15";' >> /etc/apt/apt.conf.d/docker-retries
 
-# Stage 2: Runtime image with XFCE4 optimizations
+# Stage 2: Runtime image with Lubuntu optimizations
 FROM ghcr.io/linuxserver/baseimage-kasmvnc:ubuntujammy
 
 ARG DEBIAN_FRONTEND="noninteractive"
@@ -35,9 +35,9 @@ ARG DEBIAN_FRONTEND="noninteractive"
 COPY --from=builder /etc/apt/apt.conf.d/* /etc/apt/apt.conf.d/
 
 # Set optimized labels for runtime
-LABEL build_version="[Ultra-Optimized XFCE4] Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
+LABEL build_version="[Ultra-Optimized Lubuntu] Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 LABEL maintainer="blobevm-ultra-optimized"
-LABEL description="Ultra-fast XFCE4 desktop optimized for GitHub Codespace"
+LABEL description="Ultra-fast Lubuntu (LXQt) desktop optimized for GitHub Codespace"
 
 # prevent Ubuntu's firefox stub from being installed
 COPY /root/etc/apt/preferences.d/firefox-no-snap /etc/apt/preferences.d/firefox-no-snap
@@ -47,7 +47,7 @@ COPY options.json /
 COPY /root/ /
 
 # Ultra-optimized installation for maximum speed with progress indication
-RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
+RUN echo "🚀 Installing ultra-optimized Lubuntu (LXQt) for GitHub Codespace" && \
     # Ensure bundled scripts are executable (repo may not preserve +x)
     chmod +x /installapps.sh /install-de.sh /startwm-*.sh /installable-apps/*.sh /etc/cont-init.d/* && \
     # Update package lists once
@@ -59,7 +59,7 @@ RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
     wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
     echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee /etc/apt/sources.list.d/google-chrome.list && \
     apt-get update && \
-    # Install XFCE4 and essential apps in single layer for speed
+    # Install Lubuntu (LXQt) and essential apps in single layer for speed
     # (force-confold/force-confdef prevents dpkg conffile prompts when this repo pre-seeds configs like /etc/wgetrc)
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
         -o Dpkg::Options::="--force-confdef" \
@@ -71,12 +71,11 @@ RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
         alsa-base \
         alsa-oss \
         pavucontrol \
-        # XFCE4 Core - lightweight and fastest
-        xfce4 \
-        xubuntu-default-settings \
-        xubuntu-icon-theme \
-        xfce4-terminal \
-        mousepad \
+        # Lubuntu (LXQt) Core - lightweight and fastest
+        lxqt \
+        lubuntu-default-settings \
+        qterminal \
+        featherpad \
         # Essential apps optimized for Codespace
         firefox \
         google-chrome-stable \
@@ -101,41 +100,12 @@ RUN echo "🚀 Installing ultra-optimized XFCE4 for GitHub Codespace" && \
         tree && \
     # Install additional apps based on options.json
     /installapps.sh && \
-    # Apply ultra-optimizations for XFCE4
+    # Apply ultra-optimizations for Lubuntu (LXQt)
     echo "⚡ Applying ultra-optimizations for maximum speed" && \
     # Keep upstream XDG autostart entries (some are required for a stable session).
     : && \
-    # Set ultra-optimized desktop settings
-    mkdir -p /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml && \
-    # Disable all visual effects for maximum streaming speed
-    echo '<?xml version="1.0" encoding="UTF-8"?>' > /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
-    echo '<channel name="xfwm4" version="1.0">' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
-    echo '  <property name="general" type="empty">' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
-    echo '    <property name="use_compositing" type="bool" value="false"/>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
-    echo '    <property name="show_dock_shadow" type="bool" value="false"/>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
-    echo '    <property name="show_tooltips" type="bool" value="false"/>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
-    echo '    <property name="wrap_workspaces" type="bool" value="false"/>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
-    echo '    <property name="tile_on_move" type="bool" value="false"/>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
-    echo '    <property name="snap_to_border" type="bool" value="false"/>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
-    echo '    <property name="snap_to_border_distance" type="int" value="0"/>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
-    echo '    <property name="snap_to_sibling" type="bool" value="false"/>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
-    echo '    <property name="snap_to_sibling_distance" type="int" value="0"/>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
-    echo '  </property>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
-    echo '</channel>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml && \
-    # Disable desktop icons completely for faster streaming
-    echo '<?xml version="1.0" encoding="UTF-8"?>' > /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml && \
-    echo '<channel name="xfce4-desktop" version="1.0">' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml && \
-    echo '  <property name="desktop-icons" type="empty">' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml && \
-    echo '    <property name="file-icons" type="empty">' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml && \
-    echo '      <property name="show-home" type="bool" value="false"/>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml && \
-    echo '      <property name="show-filesystem" type="bool" value="false"/>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml && \
-    echo '      <property name="show-removable" type="bool" value="false"/>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml && \
-    echo '      <property name="show-trash" type="bool" value="false"/>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml && \
-    echo '    </property>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml && \
-    echo '  </property>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml && \
-    echo '</channel>' >> /home/kasm-user/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml && \
     # Copy optimized start script
-    cp /startwm-xfce.sh /defaults/startwm.sh && \
+    cp /startwm-lxqt.sh /defaults/startwm.sh && \
     chmod +x /defaults/startwm.sh && \
     # Aggressive cleanup for minimal image size and faster builds
     echo "🧹 Aggressive cleanup for maximum speed" && \

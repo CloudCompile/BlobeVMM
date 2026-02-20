@@ -91,7 +91,7 @@ if [ $BUILD_EXIT_CODE -eq 0 ]; then
       --security-opt seccomp=unconfined \
       -e TZ=Etc/UTC \
       -e SUBFOLDER=/ \
-      -e TITLE="BlobeVM XFCE4 Optimized" \
+      -e TITLE="BlobeVM Lubuntu Optimized" \
       -p 3000:3000 \
       --shm-size=2g \
       -v "$(pwd)/Save:/config" \
