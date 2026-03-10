@@ -52,6 +52,12 @@ RUN echo "🚀 Installing ultra-optimized Lubuntu (LXQt) for GitHub Codespace" &
     chmod +x /installapps.sh /install-de.sh /startwm-*.sh /installable-apps/*.sh /etc/cont-init.d/* && \
     # Update package lists once
     apt-get update && \
+    # Install bootstrap tools required for adding external repositories
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+        wget \
+        curl \
+        ca-certificates \
+        gnupg && \
     # Add Mozilla PPA for optimized Firefox
     add-apt-repository -y ppa:mozillateam/ppa && \
     apt-get update && \
