@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: blobevmm
+    runtime: docker
+    plan: standard
+    dockerfilePath: ./Dockerfile
+    dockerContext: ./
+    region: oregon
+    port: 3000
+    healthCheckPath: /
+    healthCheckProtocol: HTTP
+    healthCheckInterval: 30
+    healthCheckTimeout: 10
+    startCommand: "/init"
+    envVars:
+      - key: PORT
+        value: "3000"
+      - key: RENDER_DEPLOYMENT
+        value: "true"
+
+  - type: background
+    name: keepalive-worker
+    runtime: python-3
+    buildCommand: "echo 'No dependencies required'"
+    startCommand: "python3 keepalive.py"
+    envVars:
+      - key: PORT
+        value: "3000"
+      - key: KEEP_ALIVE_INTERVAL
+        value: "300"
