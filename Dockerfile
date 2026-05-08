@@ -50,6 +50,8 @@ COPY /root/ /
 RUN echo "🚀 Installing ultra-optimized Lubuntu (LXQt) for GitHub Codespace" && \
     # Ensure bundled scripts are executable (repo may not preserve +x)
     chmod +x /installapps.sh /install-de.sh /startwm-*.sh /installable-apps/*.sh /etc/cont-init.d/* && \
+    # Remove broken/outdated NodeSource repository from base image
+    rm -f /etc/apt/sources.list.d/nodesource.list && \
     # Update package lists once
     apt-get update && \
     # Install bootstrap tools required for adding external repositories
